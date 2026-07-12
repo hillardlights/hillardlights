@@ -1,43 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="halloween">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hillard Lights</title>
+    <meta name="description" content="Hillard Lights — a residential Halloween and Christmas light show synced to music in Arizona.">
+    <meta name="theme-color" content="#0a0714">
 
-    <style>
-        body{
-            margin:0;
-            background:#111;
-            color:white;
-            font-family:Arial;
-            text-align:center;
-        }
+    <meta property="og:title" content="Hillard Lights">
+    <meta property="og:description" content="A residential Halloween & Christmas light show synced to music.">
+    <meta property="og:type" content="website">
 
-        header{
-            padding:60px;
-        }
+    <title>Hillard Lights — Halloween & Christmas Light Show</title>
 
-        h1{
-            font-size:60px;
-            color:orange;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Bebas+Neue&family=Creepster&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
 
-        p{
-            font-size:24px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css?v=3">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%83%3C/text%3E%3C/svg%3E">
 </head>
-
 <body>
 
-<header>
+<!-- Animated string of lights across the top of the page -->
+<div class="string-lights" aria-hidden="true"></div>
 
-<h1>🎃 Hillard Lights</h1>
+<!-- Navigation -->
+<nav class="nav" aria-label="Main">
+    <a class="brand" href="#top">
+        <span class="brand-icon" data-halloween>🎃</span>
+        <span class="brand-icon" data-christmas>🎄</span>
+        <span class="brand-text">Hillard Lights</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#setup">The House</a></li>
+        <li><a href="#schedule">Schedule</a></li>
+        <li><a href="#videos">Videos</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#follow">Follow</a></li>
+    </ul>
+    <button class="theme-toggle" type="button" aria-label="Switch season">
+        <span data-halloween>🎃 Halloween</span>
+        <span data-christmas>🎄 Christmas</span>
+    </button>
+</nav>
 
-<p>Arizona Halloween Light Show</p>
+<!-- Hero -->
+<header id="top" class="hero">
+    <div class="hero-bg" aria-hidden="true">
+        <!-- Deep sky gradient wash -->
+        <div class="sky-wash"></div>
 
+        <!-- Twinkling star field (JS populates it) -->
+        <div class="star-field" id="star-field"></div>
+
+        <!-- Seasonal moon -->
+        <div class="moon" data-halloween>
+            <div class="moon-crater c1"></div>
+            <div class="moon-crater c2"></div>
+            <div class="moon-crater c3"></div>
+        </div>
+        <div class="moon moon-full" data-christmas></div>
+
+        <!-- Bats fly across the Halloween moon -->
+        <div class="bats" data-halloween aria-hidden="true">
+            <svg class="bat b1" viewBox="0 0 40 20"><path d="M20 4c-2-4-6-4-8-2 0 3 2 5 4 6-3 1-5 3-6 6 3-1 6-2 10-1 4-1 7 0 10 1-1-3-3-5-6-6 2-1 4-3 4-6-2-2-6-2-8 2z" fill="#000"/></svg>
+            <svg class="bat b2" viewBox="0 0 40 20"><path d="M20 4c-2-4-6-4-8-2 0 3 2 5 4 6-3 1-5 3-6 6 3-1 6-2 10-1 4-1 7 0 10 1-1-3-3-5-6-6 2-1 4-3 4-6-2-2-6-2-8 2z" fill="#000"/></svg>
+            <svg class="bat b3" viewBox="0 0 40 20"><path d="M20 4c-2-4-6-4-8-2 0 3 2 5 4 6-3 1-5 3-6 6 3-1 6-2 10-1 4-1 7 0 10 1-1-3-3-5-6-6 2-1 4-3 4-6-2-2-6-2-8 2z" fill="#000"/></svg>
+        </div>
+
+        <!-- Existing color-blob glows -->
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        <div class="hero-glow hero-glow-3"></div>
+
+        <!-- Falling particles: leaves for Halloween, snow for Christmas (JS populates) -->
+        <div class="particles" id="particles"></div>
+
+        <!-- Silhouette skyline of houses / trees at the bottom -->
+        <svg class="skyline" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+            <!-- ground -->
+            <path d="M0 200 L0 160 L60 160 L80 120 L140 120 L160 100 L200 100 L220 120 L280 120 L280 140 L360 140 L380 90 L440 90 L460 140 L520 140 L520 160 L620 160 L640 100 L720 100 L740 130 L820 130 L820 150 L900 150 L920 110 L980 110 L1000 140 L1080 140 L1100 160 L1200 160 L1200 200 Z" fill="rgba(0,0,0,0.85)"/>
+            <!-- tree silhouettes -->
+            <circle cx="60" cy="150" r="20" fill="rgba(0,0,0,0.85)"/>
+            <circle cx="1160" cy="150" r="22" fill="rgba(0,0,0,0.85)"/>
+            <!-- glowing windows on the silhouette houses -->
+            <rect x="170" y="130" width="10" height="14" fill="var(--accent-1)" opacity="0.9" class="silhouette-window"/>
+            <rect x="392" y="115" width="10" height="14" fill="var(--accent-1)" opacity="0.9" class="silhouette-window"/>
+            <rect x="410" y="115" width="10" height="14" fill="var(--accent-3)" opacity="0.9" class="silhouette-window"/>
+            <rect x="660" y="120" width="10" height="14" fill="var(--accent-2)" opacity="0.9" class="silhouette-window"/>
+            <rect x="940" y="130" width="10" height="14" fill="var(--accent-1)" opacity="0.9" class="silhouette-window"/>
+        </svg>
+    </div>
+
+    <div class="hero-inner">
+        <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            <span data-halloween>Halloween 2026 · Oct 11 – Oct 31</span>
+            <span data-christmas>Christmas 2026 · Dec 1 – Dec 31</span>
+        </div>
+
+        <h1 class="hero-title">
+            <span class="hero-title-top">HILLARD</span>
+            <span class="hero-title-bot">LIGHTS</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            A residential light show synced to music.
+            <span class="hero-sub-accent" data-halloween>Spooky by October.</span>
+            <span class="hero-sub-accent" data-christmas>Merry by December.</span>
+        </p>
+
+        <div class="hero-ctas">
+            <a class="btn btn-primary" href="#schedule">See Show Times</a>
+            <a class="btn btn-ghost" href="#videos">Watch the Show</a>
+        </div>
+
+        <div class="hero-countdown" id="countdown" hidden>
+            <div class="hero-countdown-label" id="countdown-label"></div>
+            <div class="hero-countdown-grid">
+                <div><span id="cd-days">--</span><small>days</small></div>
+                <div><span id="cd-hours">--</span><small>hrs</small></div>
+                <div><span id="cd-mins">--</span><small>min</small></div>
+                <div><span id="cd-secs">--</span><small>sec</small></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#about" class="scroll-hint" aria-label="Scroll">
+        <span></span>
+    </a>
 </header>
+
+<!-- Announcement banner -->
+<section id="announcement" class="announcement" hidden>
+    <div class="announcement-inner">
+        <span class="announcement-icon">📣</span>
+        <p id="announcement-text"></p>
+    </div>
+</section>
+
+<!-- About -->
+<section id="about" class="section about">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">The Show</span>
+            <h2 class="section-title">One house. Two seasons. Way too many pixels.</h2>
+        </div>
+        <div class="about-grid" id="about-text"></div>
+        <div class="about-features">
+            <div class="feature">
+                <div class="feature-icon">📻</div>
+                <h3>Tune in on FM</h3>
+                <p>Park nearby and tune your radio to the station on the show card.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎵</div>
+                <h3>Music-synced</h3>
+                <p>Every light and pixel is programmed to the beat of the song.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🕯️</div>
+                <h3>Weather permitting</h3>
+                <p>Shows run rain or shine, but check here for any last-minute closures.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive house -->
+<section id="setup" class="section setup">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">The Setup</span>
+            <h2 class="section-title">Explore the display</h2>
+            <p class="section-lead">
+                Every dot is a real prop, plotted from the xLights layout.
+                <strong id="prop-count-lead"></strong>
+            </p>
+        </div>
+
+        <div class="layout-filters" id="layout-filters"></div>
+
+        <div class="house-wrap">
+            <svg class="house" id="house-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="Interactive layout of the light show"></svg>
+
+            <!-- Tooltip (positioned by JS) -->
+            <div class="prop-tooltip" id="prop-tooltip" hidden>
+                <strong class="tt-name"></strong>
+                <p class="tt-desc"></p>
+                <div class="tt-members"></div>
+                <div class="tt-meta"><span class="tt-cat"></span><span class="tt-count"></span></div>
+            </div>
+        </div>
+
+        <div class="setup-hint">
+            <span data-desktop>💡 Hover any dot to see the prop group</span>
+            <span data-mobile>💡 Tap any dot to see the prop group</span>
+        </div>
+    </div>
+</section>
+
+
+<!-- Schedule -->
+<section id="schedule" class="section schedule">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">Schedule</span>
+            <h2 class="section-title">Upcoming shows</h2>
+            <p class="section-lead">Show times and special nights. Check back — dates are updated regularly.</p>
+        </div>
+
+        <div class="schedule-filters">
+            <button class="chip active" type="button" data-filter="all">All</button>
+            <button class="chip" type="button" data-filter="halloween">🎃 Halloween</button>
+            <button class="chip" type="button" data-filter="christmas">🎄 Christmas</button>
+        </div>
+
+        <div class="schedule-list" id="schedule-list"></div>
+        <p class="schedule-empty" id="schedule-empty" hidden>No upcoming shows in this category yet. Check back soon.</p>
+    </div>
+</section>
+
+<!-- Videos -->
+<section id="videos" class="section videos">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">Featured Videos</span>
+            <h2 class="section-title">See it in motion</h2>
+            <p class="section-lead">Highlights from past shows and behind-the-scenes.</p>
+        </div>
+
+        <div class="videos-grid" id="videos-grid"></div>
+
+        <div class="section-cta">
+            <a class="btn btn-primary" id="youtube-cta" href="https://www.youtube.com/@hillardlights" target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>
+                Watch every video on YouTube
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery -->
+<section id="gallery" class="section gallery">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">Gallery</span>
+            <h2 class="section-title">Behind the show</h2>
+            <p class="section-lead">Prop builds, wiring, xLights sequencing, testing nights, and the yard once it's live. Click any photo for full size.</p>
+        </div>
+
+        <div class="gallery-filters" id="gallery-filters">
+            <!-- Filter chips built by JS from the gallery years -->
+        </div>
+
+        <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+</section>
+
+<!-- Follow -->
+<section id="follow" class="section follow">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="eyebrow">Follow Along</span>
+            <h2 class="section-title">New songs, sneak peeks, countdowns.</h2>
+            <p class="section-lead">Behind the scenes on TikTok. Full shows on YouTube.</p>
+        </div>
+
+        <div class="socials">
+            <a class="social-btn youtube" id="social-youtube" href="https://www.youtube.com/@hillardlights" target="_blank" rel="noopener">
+                <svg width="42" height="42" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>
+                <div>
+                    <strong>YouTube</strong>
+                    <span>@hillardlights</span>
+                </div>
+            </a>
+            <a class="social-btn tiktok" id="social-tiktok" href="https://www.tiktok.com/@hillardlights" target="_blank" rel="noopener">
+                <svg width="42" height="42" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.6 6.7a5.7 5.7 0 0 1-3.4-1.1 5.7 5.7 0 0 1-2.2-3.5h-3.4v13.2a2.7 2.7 0 1 1-2.7-2.8c.3 0 .5 0 .8.1V9.2a6.2 6.2 0 0 0-.8 0 6.2 6.2 0 1 0 6.2 6.1V9a8.9 8.9 0 0 0 5.5 1.9V7.5c-.1-.2-.1-.5 0-.8Z"/></svg>
+                <div>
+                    <strong>TikTok</strong>
+                    <span>@hillardlights</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close">×</button>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" type="button" aria-label="Previous photo">‹</button>
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" type="button" aria-label="Next photo">›</button>
+    <img class="lightbox-img" id="lightbox-img" alt="">
+    <p class="lightbox-caption" id="lightbox-caption"></p>
+    <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="brand">
+            <span class="brand-icon" data-halloween>🎃</span>
+            <span class="brand-icon" data-christmas>🎄</span>
+            <span class="brand-text">Hillard Lights</span>
+        </div>
+        <p>© <span id="year"></span> Hillard Lights · <span id="loc"></span></p>
+    </div>
+</footer>
+
+<script src="data.js?v=3"></script>
+<script src="layout-data.js?v=3"></script>
+<script src="house-data.js?v=3"></script>
+<script src="scripts.js?v=3"></script>
 
 </body>
 </html>
