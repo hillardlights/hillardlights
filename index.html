@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Bebas+Neue&family=Creepster&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=9">
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%83%3C/text%3E%3C/svg%3E">
 </head>
@@ -168,35 +168,37 @@
     </div>
 </section>
 
-<!-- Interactive house -->
+<!-- Interactive layout -->
 <section id="setup" class="section setup">
     <div class="section-inner">
         <div class="section-header">
             <span class="eyebrow">The Setup</span>
             <h2 class="section-title">Explore the display</h2>
             <p class="section-lead">
-                Every dot is a real prop, plotted from the xLights layout.
-                <strong id="prop-count-lead"></strong>
+                Straight from the xLights layout. <strong id="prop-count-lead"></strong>
+                Click any dot to see the prop group.
             </p>
         </div>
 
-        <div class="layout-filters" id="layout-filters"></div>
+        <div class="layout-wrap" id="layout-wrap">
+            <img class="layout-img" id="layout-img" alt="" draggable="false">
+            <svg class="layout-overlay" id="layout-overlay"
+                 viewBox="0 0 100 100" preserveAspectRatio="none"
+                 aria-label="Interactive prop dots over the light show layout"></svg>
 
-        <div class="house-wrap">
-            <svg class="house" id="house-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="Interactive layout of the light show"></svg>
-
-            <!-- Tooltip (positioned by JS) -->
-            <div class="prop-tooltip" id="prop-tooltip" hidden>
-                <strong class="tt-name"></strong>
-                <p class="tt-desc"></p>
-                <div class="tt-members"></div>
-                <div class="tt-meta"><span class="tt-cat"></span><span class="tt-count"></span></div>
-            </div>
+            <aside class="zone-panel" id="zone-panel" hidden>
+                <button type="button" class="zone-panel-close" id="zone-panel-close" aria-label="Close">×</button>
+                <div class="zone-panel-cat" id="zone-panel-cat"></div>
+                <h3 class="zone-panel-title" id="zone-panel-title"></h3>
+                <p class="zone-panel-desc" id="zone-panel-desc"></p>
+                <dl class="zone-panel-stats" id="zone-panel-stats"></dl>
+                <div class="zone-panel-props" id="zone-panel-props"></div>
+            </aside>
         </div>
 
         <div class="setup-hint">
-            <span data-desktop>💡 Hover any dot to see the prop group</span>
-            <span data-mobile>💡 Tap any dot to see the prop group</span>
+            <span data-desktop>💡 Hover any dot for the group name · click for details · toggle season above</span>
+            <span data-mobile>💡 Tap any dot for details · toggle season above</span>
         </div>
     </div>
 </section>
@@ -308,10 +310,10 @@
     </div>
 </footer>
 
-<script src="data.js?v=3"></script>
-<script src="layout-data.js?v=3"></script>
-<script src="house-data.js?v=3"></script>
-<script src="scripts.js?v=3"></script>
+<script src="data.js?v=9"></script>
+<script src="layout-data.js?v=9"></script>
+<script src="zones-data.js?v=9"></script>
+<script src="scripts.js?v=9"></script>
 
 </body>
 </html>

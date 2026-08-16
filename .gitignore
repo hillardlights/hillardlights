@@ -12,5 +12,7 @@ Desktop.ini
 
 # Debug / scratch artefacts
 .debug-*
+.debug/
 .exif-*
 .gallery-snippet.txt
+.server.log

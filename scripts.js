@@ -455,51 +455,31 @@
     }
 
     // --------------------------------------------------------
-    // Interactive house — rendered from real xLights layout
-    // (layout-data.js sets window.HILLARD_LAYOUT)
+    // Interactive layout — one dot per xLights auto-group at
+    // the group's centroid, mapped from world coords into the
+    // PNG's coordinate space. `aggregate` rules in zones-data.js
+    // collapse over-fragmented categories (e.g. 30+ roofline
+    // pixel segments → one "Roofline" dot).
     // --------------------------------------------------------
-    (function renderHouse() {
-        const layout = window.HILLARD_LAYOUT;
-        const svg    = $("#house-svg");
-        const wrap   = $(".house-wrap");
-        const tooltip = $("#prop-tooltip");
-        if (!layout || !svg || !wrap) return;
-
-        // Show the count in the section lead
-        const lead = $("#prop-count-lead");
-        if (lead) lead.textContent =
-            `${layout.count} props in ${layout.groupCount} groups.`;
+    (function renderLayout() {
+        const zonesData = window.HILLARD_ZONES;
+        const layout    = window.HILLARD_LAYOUT;
+        const wrap      = $("#layout-wrap");
+        const img       = $("#layout-img");
+        const svg       = $("#layout-overlay");
+        const panel     = $("#zone-panel");
+        const tooltip   = ensureTooltip();
+        if (!zonesData || !layout || !wrap || !img || !svg || !panel) return;
 
         const SVG_NS = "http://www.w3.org/2000/svg";
-        const VB_W = 1600, VB_H = 900;
-        const PAD_X = 60, PAD_Y = 60;
+        const html   = document.documentElement;
 
-        const { minX, maxX, minY, maxY } = layout.bounds;
-        const worldW = maxX - minX || 1;
-        const worldH = maxY - minY || 1;
-
-        function toSvg(x, y) {
-            const nx = (x - minX) / worldW;
-            const ny = (y - minY) / worldH;
-            return {
-                x: PAD_X + nx * (VB_W - PAD_X * 2),
-                // xLights Y is up → SVG Y is down, so flip
-                y: PAD_Y + (1 - ny) * (VB_H - PAD_Y * 2)
-            };
-        }
-
-        function makeEl(tag, attrs) {
-            const el = document.createElementNS(SVG_NS, tag);
-            for (const k in attrs) el.setAttribute(k, attrs[k]);
-            return el;
-        }
-
-        // --- Category → color map (Halloween palette + accents) ---
+        // Category → color palette (matches the SVG dot fill)
         const CAT_COLORS = {
             "Moving Head":        "#5ce0a5",
             "DMX Flood":          "#ff8f3a",
             "Roof Flood":         "#ffb347",
-            "Flood":              "#ff8f3a",
+            "Flood":              "#f28c3a",
             "Roofline Pixels":    "#c8a8ff",
             "Ghost":              "#e8ecff",
             "Flying Bat":         "#8f5cff",
@@ -524,339 +504,305 @@
             "Spooky Tree":        "#c8a8ff",
             "Steampunk Spinner":  "#ffc02a",
             "Philips Hue":        "#a06bff",
+            "Snowflake":          "#9edcff",
+            "Mega Tree":          "#22c55e",
+            "Mini Tree":          "#22c55e",
+            "Tree":               "#22c55e",
+            "Wreath":             "#ff5252",
+            "Candy Cane":         "#ff5252",
+            "Gift Box":           "#ffd93d",
+            "Star Topper":        "#ffe066",
+            "Reindeer":           "#d4a373",
+            "Santa":              "#ff5252",
             "Other":              "#ff6b1a"
         };
-        const colorFor = cat => CAT_COLORS[cat] || CAT_COLORS.Other;
+        const colorForCat = c => CAT_COLORS[c] || CAT_COLORS.Other;
 
-        // --- Layer stack (bottom → top): backdrop, ground, props ---
-        const layerHouse = makeEl("g", { class: "layer-house" });
-        const layerBg    = makeEl("g", { class: "layer-connect" });
-        const layerMain  = makeEl("g", { class: "layer-props" });
-        svg.appendChild(layerHouse);
-        svg.appendChild(layerBg);
-        svg.appendChild(layerMain);
+        let currentSeason = null;
+        let activeKey     = null;
+        let currentDots   = [];
 
-        // --- House silhouette backdrop (from home-model.obj) ---
-        const house = window.HILLARD_HOUSE;
-        const cfg   = (data.houseBackdrop) || {};
-        if (house && cfg.visible !== false) {
-            // Auto-fit: match the house width to the roofline group's X-span
-            // if we can find one; otherwise scale to ~55% of the world width.
-            const roofGroup = layout.groups.find(g =>
-                /roof/i.test(g.key) || /entrance roof/i.test(g.key));
-
-            let targetW; // width in xLights world units
-            if (roofGroup) {
-                // Find X-min and X-max of the roofline group's members
-                let rMinX = Infinity, rMaxX = -Infinity;
-                let rMinY = Infinity, rMaxY = -Infinity;
-                for (const m of layout.models) {
-                    if (m.group === roofGroup.key) {
-                        if (m.x < rMinX) rMinX = m.x; if (m.x > rMaxX) rMaxX = m.x;
-                        if (m.y < rMinY) rMinY = m.y; if (m.y > rMaxY) rMaxY = m.y;
-                    }
-                }
-                targetW = (rMaxX - rMinX) * 1.35;    // roofline usually spans the eaves
-                if (!isFinite(targetW) || targetW <= 0) targetW = worldW * 0.55;
-                var houseCenterX = (rMinX + rMaxX) / 2;
-                var houseBaseY   = rMinY;   // xLights Y-up, so lower Y = lower on the wall
-            } else {
-                targetW = worldW * 0.55;
-                var houseCenterX = (minX + maxX) / 2;
-                var houseBaseY   = minY;
-            }
-
-            const hb = house.bounds;
-            const hw = hb.width;
-            const hh = hb.height;
-            const scaleFactor = (targetW / hw) * (cfg.scale || 1);
-
-            // The house shape's own centroid at (hb.minX+hw/2, hb.minY)
-            // We want it placed at (houseCenterX, houseBaseY) in world coords.
-            // Then apply the same toSvg() transform.
-            const p0 = toSvg(houseCenterX, houseBaseY);
-            // Same-scale ratio for xLights world -> SVG pixels:
-            const svgScaleX = (VB_W - PAD_X * 2) / worldW;
-            const svgScaleY = (VB_H - PAD_Y * 2) / worldH;
-            // OBJ x maps: (obj_x - hb.centerX) * scaleFactor -> world dx -> svg dx
-            const houseSvgScaleX = scaleFactor * svgScaleX;
-            // Y flip: OBJ +Y up -> SVG +Y down, so use -1
-            const houseSvgScaleY = -scaleFactor * svgScaleY;
-
-            const hCenterOx = hb.minX + hw / 2;
-            const hAnchorOy = hb.minY; // ground of the OBJ
-
-            const tx = p0.x - hCenterOx * houseSvgScaleX + (cfg.offsetX || 0);
-            const ty = p0.y - hAnchorOy * houseSvgScaleY + (cfg.offsetY || 0);
-
-            layerHouse.setAttribute(
-                "transform",
-                `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${houseSvgScaleX.toFixed(4)} ${houseSvgScaleY.toFixed(4)})`
-            );
-            layerHouse.style.opacity = cfg.opacity != null ? cfg.opacity : 0.55;
-
-            // Emit all face paths in a single <path> for speed
-            const combined = house.paths.join(" ");
-            const facesEl = makeEl("path", {
-                d: combined,
-                class: "house-face",
-                "fill-rule": "evenodd"
-            });
-            layerHouse.appendChild(facesEl);
+        function makeEl(tag, attrs) {
+            const el = document.createElementNS(SVG_NS, tag);
+            for (const k in attrs) el.setAttribute(k, attrs[k]);
+            return el;
         }
 
-        // --- Ground line ---
-        svg.appendChild(makeEl("line", {
-            x1: 0, x2: VB_W,
-            y1: VB_H - PAD_Y + 8, y2: VB_H - PAD_Y + 8,
-            stroke: "rgba(255,255,255,0.08)", "stroke-width": 1
-        }));
+        function pixelsOfModel(m) {
+            return (m && ((m.pixels && m.pixels.length) || m.pixelCount)) || 0;
+        }
 
-        // Index groups by key for lookups
-        const groupIndex = {};
-        for (const g of layout.groups) groupIndex[g.key] = g;
+        function pixelsOfGroup(g, seasonData) {
+            let total = 0;
+            for (const name of g.members) {
+                const m = seasonData.models.find(mm => mm.name === name);
+                total += pixelsOfModel(m);
+            }
+            return total;
+        }
 
-        // Convert an xLights world-unit LENGTH (not a point) to SVG units
-        const svgUnitPerWorldX = (VB_W - PAD_X * 2) / worldW;
-        const svgUnitPerWorldY = (VB_H - PAD_Y * 2) / worldH;
+        // Turn a season's real xLights groups + config aggregations into a
+        // flat list of dots.
+        function computeDots(season) {
+            const data = layout[season];
+            const cfg  = zonesData[season] || {};
+            if (!data) return [];
 
-        // --- Render each model as its true shape ---
-        for (const m of layout.models) {
-            // Skip anything way outside the trimmed bounds (helper labels etc.)
-            if (m.x < minX || m.x > maxX || m.y < minY || m.y > maxY) continue;
+            const remaining = new Set(data.groups.map(g => g.key));
+            const dots = [];
 
-            // Skip pure label / reference models
-            if (m.displayAs === "Image" || m.displayAs === "Ruler" ||
-                m.displayAs === "Mesh") continue;
+            for (const agg of (cfg.aggregate || [])) {
+                const patterns = agg.match.map(s => new RegExp(s));
+                const matched = data.groups.filter(g =>
+                    remaining.has(g.key) && patterns.some(re => re.test(g.key))
+                );
+                if (!matched.length) continue;
+                for (const g of matched) remaining.delete(g.key);
 
-            const p = toSvg(m.x, m.y);
-            const color = colorFor(m.cat);
-            const shapeGroup = makeEl("g", {
-                class: "prop",
-                "data-group": m.group,
-                "data-cat":   m.cat,
-                "data-name":  m.name
-            });
-            shapeGroup.style.color = color; // for currentColor in child styles
-
-            // Physical size in SVG units (from CustomWidth/Height × Scale)
-            const svgW = Math.max(4, (m.w || 0) * svgUnitPerWorldX);
-            const svgH = Math.max(4, (m.h || 0) * svgUnitPerWorldY);
-
-            if (m.displayAs === "DmxMovingHeadAdv") {
-                // Beam pointing down
-                shapeGroup.appendChild(makeEl("path", {
-                    class: "mh-beam",
-                    d: `M ${p.x - 30} ${p.y + 90} L ${p.x} ${p.y + 4} L ${p.x + 30} ${p.y + 90} Z`
-                }));
-                shapeGroup.appendChild(makeEl("circle", {
-                    class: "mh-head", cx: p.x, cy: p.y, r: 9
-                }));
-                shapeGroup.appendChild(makeEl("circle", {
-                    class: "mh-lens", cx: p.x, cy: p.y, r: 4
-                }));
-            } else if (m.displayAs === "DmxFloodlight") {
-                shapeGroup.appendChild(makeEl("polygon", {
-                    class: "px-flood",
-                    points: pointsHex(p.x, p.y, 8)
-                }));
-            } else if ((m.x2 || m.y2) && (m.displayAs === "Single Line" || m.displayAs === "Arches")) {
-                // Line with pixel dots along it
-                const p2 = toSvg(m.x + m.x2, m.y + m.y2);
-                if (m.displayAs === "Arches") {
-                    // Curve up between endpoints
-                    const midX = (p.x + p2.x) / 2;
-                    const midY = Math.min(p.y, p2.y) - Math.abs(p2.x - p.x) * 0.28;
-                    shapeGroup.appendChild(makeEl("path", {
-                        class: "px-line",
-                        d: `M ${p.x} ${p.y} Q ${midX} ${midY} ${p2.x} ${p2.y}`,
-                        fill: "none"
-                    }));
-                } else {
-                    shapeGroup.appendChild(makeEl("line", {
-                        class: "px-line",
-                        x1: p.x, y1: p.y, x2: p2.x, y2: p2.y
-                    }));
+                // Weighted centroid (weight = member count)
+                let sumX = 0, sumY = 0, w = 0;
+                let totalProps = 0, totalPixels = 0;
+                const memberNames = [];
+                for (const g of matched) {
+                    sumX += g.cx * g.count;
+                    sumY += g.cy * g.count;
+                    w    += g.count;
+                    totalProps  += g.count;
+                    totalPixels += pixelsOfGroup(g, data);
+                    memberNames.push(...g.members);
                 }
-                // Dots at ends
-                shapeGroup.appendChild(makeEl("circle", {
-                    class: "px-endpoint", cx: p.x, cy: p.y, r: 2
-                }));
-                shapeGroup.appendChild(makeEl("circle", {
-                    class: "px-endpoint", cx: p2.x, cy: p2.y, r: 2
-                }));
-            } else if (m.displayAs === "Custom" || m.displayAs === "Matrix") {
-                // Rectangle sized to the real prop
-                const rotDeg = m.rot || 0;
-                const rectX = p.x - svgW / 2;
-                const rectY = p.y - svgH / 2;
-                const rect = makeEl("rect", {
-                    class: "px-custom",
-                    x: rectX, y: rectY, width: svgW, height: svgH,
-                    rx: Math.min(6, Math.min(svgW, svgH) / 4)
+                dots.push({
+                    key: "agg-" + agg.key,
+                    label: agg.label,
+                    cat:   agg.cat || matched[0].cat,
+                    description: agg.description || matched[0].description,
+                    cx: sumX / w,
+                    cy: sumY / w,
+                    count: totalProps,
+                    pixels: totalPixels,
+                    members: memberNames,
+                    subGroups: matched.map(g => ({
+                        label: g.label, count: g.count,
+                        pixels: pixelsOfGroup(g, data)
+                    })),
+                    aggregated: true
                 });
-                if (rotDeg) {
-                    rect.setAttribute("transform",
-                        `rotate(${(-rotDeg).toFixed(2)} ${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
-                }
-                shapeGroup.appendChild(rect);
-                // A subtle center dot for visual anchor on tiny props
-                if (svgW < 12 && svgH < 12) {
-                    shapeGroup.appendChild(makeEl("circle", {
-                        class: "px", cx: p.x, cy: p.y, r: 2
-                    }));
-                }
-            } else {
-                // Fallback dot
-                shapeGroup.appendChild(makeEl("circle", {
-                    class: "px", cx: p.x, cy: p.y, r: 3
-                }));
             }
 
-            layerMain.appendChild(shapeGroup);
-        }
-
-        function pointsHex(cx, cy, r) {
-            const pts = [];
-            for (let i = 0; i < 6; i++) {
-                const a = (Math.PI / 3) * i + Math.PI / 6;
-                pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
-            }
-            return pts.join(" ");
-        }
-
-        // --- Build category filter chips ---
-        const filterHost = $("#layout-filters");
-        if (filterHost) {
-            const cats = Object.entries(layout.categories)
-                .sort((a, b) => b[1] - a[1]);
-            const chips = [
-                `<button class="chip active" data-cat="all">All (${layout.count})</button>`
-            ].concat(cats.map(([c, n]) =>
-                `<button class="chip" data-cat="${escapeAttr(c)}" style="--chip-c:${colorFor(c)}">${escapeHtml(c)} (${n})</button>`
-            ));
-            filterHost.innerHTML = chips.join("");
-
-            filterHost.addEventListener("click", e => {
-                const b = e.target.closest("button.chip");
-                if (!b) return;
-                $$(".chip", filterHost).forEach(c => c.classList.remove("active"));
-                b.classList.add("active");
-                const cat = b.dataset.cat;
-                svg.classList.toggle("filtered", cat !== "all");
-                $$("[data-cat]", svg).forEach(el => {
-                    el.classList.toggle("dim", cat !== "all" && el.dataset.cat !== cat);
+            // Everything not aggregated → one dot per auto-group
+            for (const g of data.groups) {
+                if (!remaining.has(g.key)) continue;
+                dots.push({
+                    key: g.key,
+                    label: g.label,
+                    cat: g.cat,
+                    description: g.description,
+                    cx: g.cx,
+                    cy: g.cy,
+                    count: g.count,
+                    pixels: pixelsOfGroup(g, data),
+                    members: g.members,
+                    subGroups: null,
+                    aggregated: false
                 });
-            });
-        }
-
-        // --- Group hover + tap tooltip ---
-        let highlighted = null;
-        function highlightGroup(key) {
-            if (highlighted === key) return;
-            clearHighlight();
-            $$(`[data-group="${cssEscape(key)}"]`, svg).forEach(el => el.classList.add("hl"));
-            highlighted = key;
-        }
-        function clearHighlight() {
-            if (!highlighted) return;
-            $$(`.hl`, svg).forEach(el => el.classList.remove("hl"));
-            highlighted = null;
-        }
-
-        function showTooltipForGroup(key, anchorEl) {
-            const g = groupIndex[key];
-            if (!g || !tooltip) return;
-            $(".tt-name", tooltip).textContent = g.label;
-            $(".tt-desc", tooltip).textContent = g.description || "";
-            const catEl = $(".tt-cat", tooltip);
-            catEl.textContent = g.cat;
-            catEl.style.color = colorFor(g.cat);
-            $(".tt-count", tooltip).textContent =
-                g.count > 1 ? `${g.count}×` : "";
-
-            // Sub-list of members / xLights groups
-            const membersEl = $(".tt-members", tooltip);
-            if (membersEl) {
-                const parts = [];
-                if (g.count > 1 && g.members.length <= 8) {
-                    parts.push("<em>Members:</em> " + g.members.map(escapeHtml).join(", "));
-                } else if (g.count > 1) {
-                    parts.push(`<em>${g.count} members</em>`);
-                } else {
-                    parts.push("<em>Model:</em> " + escapeHtml(g.members[0]));
-                }
-                if (g.modelGroups && g.modelGroups.length) {
-                    const sampled = g.modelGroups.slice(0, 4).map(escapeHtml).join(", ");
-                    const more = g.modelGroups.length > 4 ? `, +${g.modelGroups.length - 4} more` : "";
-                    parts.push(`<em>xLights groups:</em> ${sampled}${more}`);
-                }
-                membersEl.innerHTML = parts.join("<br>");
             }
 
+            return dots;
+        }
+
+        function renderSeason(season) {
+            if (season === currentSeason) return;
+            currentSeason = season;
+            hidePanel();
+
+            const cfg  = zonesData[season];
+            const data = layout[season];
+            if (!cfg || !data) return;
+
+            img.setAttribute("src", cfg.image);
+            img.setAttribute("alt", cfg.alt || "");
+
+            while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+            const b = data.bounds;
+            const spanX = b.maxX - b.minX;
+            const spanY = b.maxY - b.minY;
+            const padX = cfg.padX || 0;
+            const padY = cfg.padY || 0;
+            const usableX = 100 - 2 * padX;
+            const usableY = 100 - 2 * padY;
+
+            currentDots = computeDots(season);
+
+            for (const d of currentDots) {
+                const pctX = padX + ((d.cx - b.minX) / spanX) * usableX;
+                // xLights Y is up → SVG y is down: flip.
+                const pctY = padY + ((b.maxY - d.cy) / spanY) * usableY;
+                d._px = pctX;
+                d._py = pctY;
+
+                const g = makeEl("g", { class: "dot-group", "data-key": d.key });
+                const r = d.count > 1 ? 1.7 : 1.2;
+                const c = makeEl("circle", {
+                    class: "group-dot",
+                    cx: pctX, cy: pctY, r,
+                    "data-cat": d.cat,
+                    tabindex: 0, role: "button",
+                    "aria-label": d.label
+                });
+                c.style.setProperty("--dot-color", colorForCat(d.cat));
+                g.appendChild(c);
+                svg.appendChild(g);
+            }
+        }
+
+        // -- Panel --
+        function showPanel(dot) {
+            $("#zone-panel-title").textContent = dot.label;
+            $("#zone-panel-cat").textContent   = dot.cat || "";
+            $("#zone-panel-cat").style.color   = colorForCat(dot.cat);
+            $("#zone-panel-cat").style.background =
+                "rgba(" + hexToRgb(colorForCat(dot.cat)) + ",0.14)";
+            $("#zone-panel-desc").textContent  = dot.description || "";
+
+            const stats = $("#zone-panel-stats");
+            stats.innerHTML = "";
+            stat(stats, "Props",   dot.count);
+            stat(stats, "Pixels",  dot.pixels.toLocaleString());
+            if (dot.aggregated && dot.subGroups) {
+                stat(stats, "Subgroups", dot.subGroups.length);
+            }
+
+            const propsHost = $("#zone-panel-props");
+            let listHtml = "";
+            if (dot.aggregated && dot.subGroups) {
+                const items = dot.subGroups
+                    .sort((a, b) => b.count - a.count)
+                    .map(sg => `
+                        <li>
+                            <span class="prop-name">${escapeHtml(sg.label)}</span>
+                            <span class="prop-count">${sg.count > 1 ? sg.count + "× · " : ""}<strong>${sg.pixels.toLocaleString()}</strong> px</span>
+                        </li>`).join("");
+                listHtml = `<strong>Includes</strong><ul>${items}</ul>`;
+            } else if (dot.members && dot.members.length > 1) {
+                const seasonData = layout[currentSeason];
+                const items = dot.members.map(name => {
+                    const m = seasonData.models.find(mm => mm.name === name);
+                    const px = pixelsOfModel(m);
+                    return `
+                        <li>
+                            <span class="prop-name">${escapeHtml(name)}</span>
+                            <span class="prop-count"><strong>${px.toLocaleString()}</strong> px</span>
+                        </li>`;
+                }).join("");
+                listHtml = `<strong>Individual props</strong><ul>${items}</ul>`;
+            } else if (dot.members && dot.members.length === 1) {
+                listHtml = `<strong>Prop name</strong><ul><li><span class="prop-name">${escapeHtml(dot.members[0])}</span></li></ul>`;
+            }
+            propsHost.innerHTML = listHtml;
+
+            panel.hidden = false;
+        }
+
+        function stat(host, label, value) {
+            if (value == null || value === "" || value === 0) return;
+            const el = document.createElement("div");
+            el.innerHTML = `<dt>${escapeHtml(label)}</dt><dd>${escapeHtml(String(value))}</dd>`;
+            host.appendChild(el);
+        }
+
+        function hidePanel() {
+            panel.hidden = true;
+            clearHighlights();
+            activeKey = null;
+        }
+
+        function clearHighlights() {
+            $$(".group-dot.hl", svg).forEach(el => el.classList.remove("hl"));
+        }
+
+        // -- Hover tooltip --
+        function ensureTooltip() {
+            let t = document.querySelector(".dot-tooltip");
+            if (!t) {
+                t = document.createElement("div");
+                t.className = "dot-tooltip";
+                t.hidden = true;
+                document.body.appendChild(t);
+            }
+            return t;
+        }
+
+        function showTooltip(dot, evt) {
+            tooltip.textContent = dot.label +
+                (dot.count > 1 ? ` · ${dot.count}×` : "");
             tooltip.hidden = false;
-            positionTooltip(anchorEl);
-            requestAnimationFrame(() => tooltip.classList.add("show"));
+            tooltip.style.left = evt.clientX + "px";
+            tooltip.style.top  = (evt.clientY - 28) + "px";
         }
+        function hideTooltip() { tooltip.hidden = true; }
 
-        function positionTooltip(anchor) {
-            const wb = wrap.getBoundingClientRect();
-            const ab = anchor.getBoundingClientRect();
-            const x = ab.left + ab.width / 2 - wb.left;
-            const y = ab.top - wb.top;
-            tooltip.style.left = x + "px";
-            tooltip.style.top  = y + "px";
-        }
-
-        function hideTooltip() {
-            if (!tooltip) return;
-            tooltip.classList.remove("show");
-            setTimeout(() => {
-                if (!tooltip.classList.contains("show")) tooltip.hidden = true;
-            }, 180);
-        }
-
-        // Desktop hover
         svg.addEventListener("pointermove", e => {
-            const el = e.target.closest("[data-group]");
-            if (!el) return;
-            highlightGroup(el.dataset.group);
-            showTooltipForGroup(el.dataset.group, el);
-            tooltip.dataset.groupKey = el.dataset.group;
+            const dotEl = e.target.closest(".group-dot");
+            if (!dotEl) { hideTooltip(); return; }
+            const key = dotEl.parentNode.dataset.key;
+            const dot = currentDots.find(d => d.key === key);
+            if (!dot) return;
+            if (!activeKey) {
+                clearHighlights();
+                dotEl.classList.add("hl");
+            }
+            showTooltip(dot, e);
         });
         svg.addEventListener("pointerleave", () => {
-            clearHighlight();
             hideTooltip();
-            tooltip.dataset.groupKey = "";
+            if (!activeKey) clearHighlights();
         });
 
-        // Mobile tap
         svg.addEventListener("click", e => {
-            const el = e.target.closest("[data-group]");
-            if (!el) { clearHighlight(); hideTooltip(); return; }
-            if (tooltip.dataset.groupKey === el.dataset.group && !tooltip.hidden) {
-                clearHighlight(); hideTooltip();
-                tooltip.dataset.groupKey = "";
-            } else {
-                highlightGroup(el.dataset.group);
-                showTooltipForGroup(el.dataset.group, el);
-                tooltip.dataset.groupKey = el.dataset.group;
-            }
+            const dotEl = e.target.closest(".group-dot");
+            if (!dotEl) return;
+            const key = dotEl.parentNode.dataset.key;
+            const dot = currentDots.find(d => d.key === key);
+            if (!dot) return;
+            if (activeKey === key) { hidePanel(); return; }
+            clearHighlights();
+            dotEl.classList.add("hl");
+            activeKey = key;
+            showPanel(dot);
         });
 
-        // Reposition on scroll/resize while shown
-        function reposition() {
-            const key = tooltip.dataset.groupKey;
-            if (!key || tooltip.hidden) return;
-            const el = svg.querySelector(`[data-group="${cssEscape(key)}"]`);
-            if (el) positionTooltip(el);
-        }
-        window.addEventListener("scroll", reposition, { passive: true });
-        window.addEventListener("resize", reposition);
+        $("#zone-panel-close").addEventListener("click", hidePanel);
 
-        function cssEscape(s) {
-            return (window.CSS && CSS.escape) ? CSS.escape(s)
-                : String(s).replace(/["\\]/g, "\\$&");
+        document.addEventListener("click", e => {
+            if (!wrap.contains(e.target) && !panel.contains(e.target)) hidePanel();
+        });
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape" && !panel.hidden) hidePanel();
+        });
+
+        // Section subtitle: real numbers from the xLights export
+        const lead = $("#prop-count-lead");
+        function updateLead(season) {
+            const d = layout[season];
+            if (lead && d) lead.textContent =
+                `${d.count} props across ${d.groupCount} groups.`;
+        }
+
+        // Season swap
+        new MutationObserver(() => {
+            const s = html.getAttribute("data-theme") || "halloween";
+            renderSeason(s);
+            updateLead(s);
+        }).observe(html, { attributes: true, attributeFilter: ["data-theme"] });
+
+        const initial = html.getAttribute("data-theme") || "halloween";
+        renderSeason(initial);
+        updateLead(initial);
+
+        function hexToRgb(hex) {
+            const h = hex.replace("#", "");
+            return parseInt(h.slice(0,2),16) + "," + parseInt(h.slice(2,4),16) + "," + parseInt(h.slice(4,6),16);
         }
     })();
 

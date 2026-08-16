@@ -1,23 +1,36 @@
 /* ============================================================
    extract_layout.js
    ------------------------------------------------------------
-   Reads xLights rgbeffects.xml and produces layout.json +
-   layout-data.js:
+   Reads xLights rgbeffects.xml files for each season and emits
+   a single combined layout-data.js of the form:
 
-     - Every model with position + real physical size
-     - Sub-models per model
+     window.HILLARD_LAYOUT = {
+       halloween: { ... },
+       christmas: { ... }
+     };
+
+   Each season includes:
+     - Every model with full 3D position, physical size, and rotation
+     - Sub-model names
      - User-defined xLights modelGroups
      - Auto-derived logical groups (regex strip trailing numbers)
      - Category + short description per group
+     - Bounds (X, Y, Z) and per-category counts
 
-   Run:   node tools/extract_layout.js
+   Run:  node tools/extract_layout.js
    ============================================================ */
 
 const fs   = require("fs");
 const path = require("path");
 
-const IN       = process.env.XLIGHTS_XML
-    || "D:/light_shows/halloween/2026/xlights_rgbeffects.xml";
+// Both source XML files. If a file is missing that season is skipped.
+const SOURCES = {
+    halloween: process.env.XLIGHTS_HALLOWEEN
+        || "D:/light_shows/halloween/2026/xlights_rgbeffects.xml",
+    christmas: process.env.XLIGHTS_CHRISTMAS
+        || "D:/light_shows/christmas/2025/xlights_rgbeffects.xml"
+};
+
 const OUT_JSON = path.join(__dirname, "..", "layout.json");
 const OUT_JS   = path.join(__dirname, "..", "layout-data.js");
 
@@ -31,6 +44,7 @@ const EXCLUDE_PATTERNS = [
 ];
 
 const CATEGORIES = [
+    // Halloween
     { test: /^MH\d+$/,                        cat: "Moving Head" },
     { test: /^dmx_flood/i,                    cat: "DMX Flood" },
     { test: /^flood-roof/i,                   cat: "Roof Flood" },
@@ -53,15 +67,34 @@ const CATEGORIES = [
     { test: /^Gothic-Arch$/,                  cat: "Gothic Arch" },
     { test: /^gothic bush/i,                  cat: "Gothic Bush" },
     { test: /^steampunk/i,                    cat: "Steampunk Spinner" },
-    { test: /^phillips hue/i,                 cat: "Philips Hue" },
+    { test: /^phillips hue|^philips hue/i,    cat: "Philips Hue" },
     { test: /^window_matrix/i,                cat: "Window Matrix" },
     { test: /^garage_matrix$/i,               cat: "Garage Matrix" },
     { test: /^matrix - /i,                    cat: "Matrix Column" },
+
+    // Christmas
+    { test: /^snowflake/i,                    cat: "Snowflake" },
+    { test: /^mega ?tree|^mega-?tree/i,       cat: "Mega Tree" },
+    { test: /^mini ?tree|^mini-?tree/i,       cat: "Mini Tree" },
+    { test: /^tree/i,                         cat: "Tree" },
+    { test: /^wreath/i,                       cat: "Wreath" },
+    { test: /^candy ?cane|^cane/i,            cat: "Candy Cane" },
+    { test: /^gift|^present|^box - /i,        cat: "Gift Box" },
+    { test: /^star/i,                         cat: "Star Topper" },
+    { test: /^reindeer/i,                     cat: "Reindeer" },
+    { test: /^santa/i,                        cat: "Santa" },
+    { test: /^ornament/i,                     cat: "Ornament" },
+    { test: /^icicle/i,                       cat: "Icicle" },
+    { test: /^peppermint/i,                   cat: "Peppermint" },
+    { test: /^nutcracker/i,                   cat: "Nutcracker" },
+
+    // Shared
     { test: /roof/i,                          cat: "Roofline Pixels" },
     { test: /garage/i,                        cat: "Garage" },
 ];
 
 const CAT_DESCRIPTIONS = {
+    // Halloween
     "Moving Head":        "DMX moving heads on the truss — pan, tilt, gobo, and color wheel choreographed to each song.",
     "DMX Flood":          "DMX RGB flood lights aimed at the walls and roofline for full-color washes.",
     "Roof Flood":         "Static color floods highlighting the roof planes from above.",
@@ -90,6 +123,23 @@ const CAT_DESCRIPTIONS = {
     "Spooky Tree":        "The 16-ft spooky tree — pixel branches, animated eyes, and full color wash.",
     "Steampunk Spinner":  "DMX steampunk spinners that rotate in sync with drops.",
     "Philips Hue":        "Philips Hue smart bulbs on the driveway and porch — full RGB for ambient wash.",
+
+    // Christmas
+    "Snowflake":          "Pixel snowflakes with individually animated arms — twinkles, chases, and full-color washes.",
+    "Mega Tree":          "The mega tree centerpiece — vertical pixel strands used for beat-mapped sweeps and beat drops.",
+    "Mini Tree":          "Small pixel trees arranged in a row across the yard.",
+    "Tree":               "Pixel-wrapped tree prop.",
+    "Wreath":             "Pixel-lit wreath — rings and arms addressable individually.",
+    "Candy Cane":         "Alternating red-and-white candy cane props lining the walkway.",
+    "Gift Box":           "Stacked pixel gift boxes with independent lid, sides, and bow.",
+    "Star Topper":        "The star topper mounted at the peak of the roof.",
+    "Reindeer":           "Reindeer silhouette with lit outline and animated features.",
+    "Santa":              "Santa prop with pixel outline and animated details.",
+    "Ornament":           "Round pixel ornament — hanging or ground-mounted.",
+    "Icicle":             "Pixel icicles dripping from the eaves.",
+    "Peppermint":         "Peppermint-swirl pixel prop.",
+    "Nutcracker":         "Pixel nutcracker prop with animated details.",
+
     "Other":              "Custom prop in the show."
 };
 
@@ -146,9 +196,6 @@ function labelFor(key) {
               .trim();
 }
 
-// ---------------------------------------------------------------
-// Description overrides per specific auto-group key
-// ---------------------------------------------------------------
 const GROUP_DESCRIPTIONS = {
     "MH":                     "Eight DMX moving heads on the front truss. Pan, tilt, gobo, and color wheel are all choreographed per song.",
     "spooky tree":            "The 16-foot yard tree wrapped in RGB pixels, with animated eyes and 16 tree-bat perches.",
@@ -185,10 +232,8 @@ function descriptionFor(groupKey, cat, count) {
 }
 
 // ---------------------------------------------------------------
-// Parse the XML
+// XML parsing helpers
 // ---------------------------------------------------------------
-const xml = fs.readFileSync(IN, "utf8");
-
 function parseAttrs(str) {
     const out = {};
     const re = /(\w+)="([^"]*)"/g;
@@ -197,156 +242,224 @@ function parseAttrs(str) {
     return out;
 }
 
-// Grab every <model ...>...</model> block
-const modelBlockRe = /<model\s+([\s\S]*?)>([\s\S]*?)<\/model>/g;
-const models = [];
-let mb;
-while ((mb = modelBlockRe.exec(xml)) !== null) {
-    const attrs = parseAttrs(mb[1]);
-    const body  = mb[2] || "";
-    const name  = attrs.name;
-    if (!name || excluded(name)) continue;
-
-    const num  = k => (attrs[k] !== undefined && attrs[k] !== "") ? parseFloat(attrs[k]) : 0;
-
-    // Sub-model names within this block
-    const subs = [];
-    let sm;
-    const subRe = /<subModel\s+name="([^"]+)"/g;
-    while ((sm = subRe.exec(body)) !== null) subs.push(sm[1]);
-
-    const cw = num("CustomWidth");
-    const ch = num("CustomHeight");
-    const sx = num("ScaleX") || 1;
-    const sy = num("ScaleY") || 1;
-
-    // Physical dimensions in xLights world units, when applicable
-    const worldW = (cw && sx) ? cw * sx : 0;
-    const worldH = (ch && sy) ? ch * sy : 0;
-
-    models.push({
-        name,
-        group:     groupKey(name),
-        cat:       categorize(name),
-        displayAs: attrs.DisplayAs || "",
-        x:  num("WorldPosX"),
-        y:  num("WorldPosY"),
-        z:  num("WorldPosZ"),
-        x2: num("X2"),
-        y2: num("Y2"),
-        rot: num("RotateZ"),
-        w:  worldW,
-        h:  worldH,
-        pixels: num("PixelCount") || num("NodesPerString") || 0,
-        strings: num("NumStrings") || 1,
-        beamLen: num("DmxBeamLength"),
-        channel: attrs.StartChannel || "",
-        desc:    attrs.Description  || "",
-        subs
-    });
-}
-
-console.log(`Parsed ${models.length} models (after filtering).`);
-
-// ---------------------------------------------------------------
-// Parse <modelGroup> blocks
-// ---------------------------------------------------------------
-const groupBlockRe = /<modelGroup\s+([\s\S]*?)>([\s\S]*?)<\/modelGroup>/g;
-const xlightsGroups = [];
-let gb;
-while ((gb = groupBlockRe.exec(xml)) !== null) {
-    const attrs = parseAttrs(gb[1]);
-    if (!attrs.name) continue;
-    const memberStr = attrs.models || "";
-    // members can reference sub-models via "modelname/SubModelName"
-    const raw = memberStr.split(",").map(s => s.trim()).filter(Boolean);
-    const parents = new Set();
-    for (const r of raw) parents.add(r.split("/")[0]);
-    xlightsGroups.push({
-        name:      attrs.name,
-        parents:   [...parents],
-        rawCount:  raw.length
-    });
-}
-console.log(`Parsed ${xlightsGroups.length} xLights model groups.`);
-
-// ---------------------------------------------------------------
-// Compute bounds (trimmed to eliminate off-screen helpers)
-// ---------------------------------------------------------------
 function trimmedRange(vals, pct = 0.02) {
+    if (!vals.length) return [0, 0];
     const s = [...vals].sort((a, b) => a - b);
     const drop = Math.floor(s.length * pct);
     return [s[drop], s[s.length - 1 - drop]];
 }
-const [minX, maxX] = trimmedRange(models.map(m => m.x));
-const [minY, maxY] = trimmedRange(models.map(m => m.y));
 
-// ---------------------------------------------------------------
-// Auto-groups (my regex grouping), enriched with descriptions
-// and xLights modelGroup memberships.
-// ---------------------------------------------------------------
-const gMap = {};
-for (const m of models) {
-    const g = gMap[m.group] = gMap[m.group] || {
-        key:     m.group,
-        label:   labelFor(m.group),
-        cat:     m.cat,
-        count:   0,
-        members: [],
-        cx: 0, cy: 0,
-        modelGroups: new Set()
-    };
-    g.count++;
-    g.members.push(m.name);
-    g.cx += m.x;
-    g.cy += m.y;
-    // Find every xLights modelGroup containing this model as a parent
-    for (const xg of xlightsGroups) {
-        if (xg.parents.includes(m.name)) g.modelGroups.add(xg.name);
+// Parse xLights CustomModel* formats into an array of {c, r, d?} grid coords.
+// Compressed formats are "index,col,row;index,col,row;..." (or with depth for 3D).
+// Legacy uncompressed is a ";"-separated grid of ","-separated cells; each
+// numeric cell means a pixel exists at that grid position.
+function parseCustomPixels(compressed3D, compressed, uncompressed) {
+    if (compressed3D) {
+        return compressed3D.split(";").map(t => {
+            const [i, c, r, d] = t.split(",").map(Number);
+            return isNaN(i) ? null : { c, r, d: d || 0 };
+        }).filter(Boolean);
     }
+    if (compressed) {
+        return compressed.split(";").map(t => {
+            const [i, c, r] = t.split(",").map(Number);
+            return isNaN(i) ? null : { c, r, d: 0 };
+        }).filter(Boolean);
+    }
+    if (uncompressed) {
+        const out = [];
+        const rows = uncompressed.split(";");
+        for (let r = 0; r < rows.length; r++) {
+            const cells = rows[r].split(",");
+            for (let c = 0; c < cells.length; c++) {
+                if (/^\d+$/.test(cells[c].trim())) out.push({ c, r, d: 0 });
+            }
+        }
+        return out;
+    }
+    return [];
 }
 
-const groups = Object.values(gMap).map(g => ({
-    key:         g.key,
-    label:       g.label,
-    cat:         g.cat,
-    count:       g.count,
-    description: descriptionFor(g.key, g.cat, g.count),
-    members:     g.members,
-    cx:          g.cx / g.count,
-    cy:          g.cy / g.count,
-    modelGroups: [...g.modelGroups].sort()
-})).sort((a, b) => b.count - a.count);
+// ---------------------------------------------------------------
+// Per-season extraction
+// ---------------------------------------------------------------
+function extractSeason(season, xmlPath) {
+    if (!fs.existsSync(xmlPath)) {
+        console.warn(`[${season}] source missing: ${xmlPath}`);
+        return null;
+    }
+
+    console.log(`[${season}] reading ${xmlPath}`);
+    const xml = fs.readFileSync(xmlPath, "utf8");
+
+    const modelBlockRe = /<model\s+([\s\S]*?)>([\s\S]*?)<\/model>/g;
+    const models = [];
+    let mb;
+    while ((mb = modelBlockRe.exec(xml)) !== null) {
+        const attrs = parseAttrs(mb[1]);
+        const body  = mb[2] || "";
+        const name  = attrs.name;
+        if (!name || excluded(name)) continue;
+
+        const num = k => (attrs[k] !== undefined && attrs[k] !== "")
+            ? parseFloat(attrs[k]) : 0;
+
+        const subs = [];
+        let sm;
+        const subRe = /<subModel\s+name="([^"]+)"/g;
+        while ((sm = subRe.exec(body)) !== null) subs.push(sm[1]);
+
+        const cw = num("CustomWidth");
+        const ch = num("CustomHeight");
+        const cd = num("Depth") || num("CustomDepth");
+        const sx = num("ScaleX") || 1;
+        const sy = num("ScaleY") || 1;
+        const sz = num("ScaleZ") || 1;
+
+        // Grid dimensions for Custom/Matrix models
+        const gridW = num("parm1");
+        const gridH = num("parm2");
+        const gridD = num("parm3");
+
+        // Physical bounding size in world units
+        const worldW = (cw && sx) ? cw * sx : 0;
+        const worldH = (ch && sy) ? ch * sy : 0;
+        const worldD = (cd && sz) ? cd * sz : 0;
+
+        // Individual pixel positions for Custom models
+        // (newer xlights uses CustomModelCompressed with "index,col,row" tuples)
+        const pixels = parseCustomPixels(
+            attrs.CustomModelCompressed3D,
+            attrs.CustomModelCompressed,
+            attrs.CustomModel
+        );
+
+        models.push({
+            name,
+            group:     groupKey(name),
+            cat:       categorize(name),
+            displayAs: attrs.DisplayAs || "",
+            x:  num("WorldPosX"),
+            y:  num("WorldPosY"),
+            z:  num("WorldPosZ"),
+            x2: num("X2"),
+            y2: num("Y2"),
+            z2: num("Z2"),
+            rotX: num("RotateX"),
+            rotY: num("RotateY"),
+            rotZ: num("RotateZ"),
+            w:  worldW,
+            h:  worldH,
+            d:  worldD,
+            gridW, gridH, gridD,
+            pixelCount:  num("PixelCount") || num("NodesPerString") || 0,
+            strings: num("NumStrings") || 1,
+            beamLen: num("DmxBeamLength"),
+            channel: attrs.StartChannel || "",
+            desc:    attrs.Description  || "",
+            subs,
+            pixels    // array of {c, r, d?} in grid coords, or [] if not a custom model
+        });
+    }
+    console.log(`[${season}] parsed ${models.length} models`);
+
+    // xLights modelGroups
+    const groupBlockRe = /<modelGroup\s+([\s\S]*?)>([\s\S]*?)<\/modelGroup>/g;
+    const xlightsGroups = [];
+    let gb;
+    while ((gb = groupBlockRe.exec(xml)) !== null) {
+        const attrs = parseAttrs(gb[1]);
+        if (!attrs.name) continue;
+        const memberStr = attrs.models || "";
+        const raw = memberStr.split(",").map(s => s.trim()).filter(Boolean);
+        const parents = new Set();
+        for (const r of raw) parents.add(r.split("/")[0]);
+        xlightsGroups.push({
+            name:     attrs.name,
+            parents:  [...parents],
+            rawCount: raw.length
+        });
+    }
+    console.log(`[${season}] parsed ${xlightsGroups.length} xLights modelGroups`);
+
+    // Bounds (trimmed on X/Y — Z is left raw so height-of-tree props aren't cropped)
+    const [minX, maxX] = trimmedRange(models.map(m => m.x));
+    const [minY, maxY] = trimmedRange(models.map(m => m.y));
+    const zVals = models.map(m => m.z);
+    const minZ = Math.min(...zVals);
+    const maxZ = Math.max(...zVals);
+
+    // Auto-groups
+    const gMap = {};
+    for (const m of models) {
+        const g = gMap[m.group] = gMap[m.group] || {
+            key:     m.group,
+            label:   labelFor(m.group),
+            cat:     m.cat,
+            count:   0,
+            members: [],
+            cx: 0, cy: 0, cz: 0,
+            modelGroups: new Set()
+        };
+        g.count++;
+        g.members.push(m.name);
+        g.cx += m.x;
+        g.cy += m.y;
+        g.cz += m.z;
+        for (const xg of xlightsGroups) {
+            if (xg.parents.includes(m.name)) g.modelGroups.add(xg.name);
+        }
+    }
+
+    const groups = Object.values(gMap).map(g => ({
+        key:         g.key,
+        label:       g.label,
+        cat:         g.cat,
+        count:       g.count,
+        description: descriptionFor(g.key, g.cat, g.count),
+        members:     g.members,
+        cx:          g.cx / g.count,
+        cy:          g.cy / g.count,
+        cz:          g.cz / g.count,
+        modelGroups: [...g.modelGroups].sort()
+    })).sort((a, b) => b.count - a.count);
+
+    const catCounts = {};
+    for (const m of models) catCounts[m.cat] = (catCounts[m.cat] || 0) + 1;
+
+    return {
+        generatedAt: new Date().toISOString(),
+        source: xmlPath,
+        count: models.length,
+        groupCount: groups.length,
+        xlightsGroupCount: xlightsGroups.length,
+        subModelCount: models.reduce((n, m) => n + m.subs.length, 0),
+        bounds: { minX, maxX, minY, maxY, minZ, maxZ },
+        categories: catCounts,
+        groups,
+        models
+    };
+}
 
 // ---------------------------------------------------------------
-// Category summary
+// Emit combined per-season data
 // ---------------------------------------------------------------
-const catCounts = {};
-for (const m of models) catCounts[m.cat] = (catCounts[m.cat] || 0) + 1;
-
-const out = {
-    generatedAt: new Date().toISOString(),
-    source: IN,
-    count: models.length,
-    groupCount: groups.length,
-    xlightsGroupCount: xlightsGroups.length,
-    subModelCount: models.reduce((n, m) => n + m.subs.length, 0),
-    bounds: { minX, maxX, minY, maxY },
-    categories: catCounts,
-    groups,
-    models
-};
+const out = {};
+for (const season of Object.keys(SOURCES)) {
+    const data = extractSeason(season, SOURCES[season]);
+    if (data) out[season] = data;
+}
 
 fs.writeFileSync(OUT_JSON, JSON.stringify(out, null, 2));
 fs.writeFileSync(OUT_JS,
-    "// Auto-generated from xlights_rgbeffects.xml by tools/extract_layout.js — do not edit by hand.\n" +
+    "// Auto-generated by tools/extract_layout.js — do not edit by hand.\n" +
     "window.HILLARD_LAYOUT = " + JSON.stringify(out) + ";\n"
 );
 
-console.log(`Wrote ${models.length} models in ${groups.length} groups`);
-console.log(`  → ${OUT_JSON}`);
-console.log(`  → ${OUT_JS}`);
-console.log(`Sub-models total:      ${out.subModelCount}`);
-console.log(`xLights modelGroups:   ${out.xlightsGroupCount}`);
-console.log(`Bounds:`, out.bounds);
-console.log(`Top groups:`, groups.slice(0, 6).map(g => `${g.label} (${g.count})`));
+for (const season of Object.keys(out)) {
+    const d = out[season];
+    console.log(`[${season}] ${d.count} models · ${d.groupCount} groups · ${d.xlightsGroupCount} xLights groups`);
+    console.log(`[${season}] bounds:`, d.bounds);
+}
+console.log(`\nWrote → ${OUT_JSON}`);
+console.log(`      → ${OUT_JS}`);
