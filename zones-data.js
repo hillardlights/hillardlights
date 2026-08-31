@@ -70,7 +70,8 @@ window.HILLARD_ZONES = {
             "bat - flying - large",
             "truss-bats",
             "MH",
-            "matrix-truss"
+            "matrix-truss",
+            "fences"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -199,8 +200,10 @@ window.HILLARD_ZONES = {
                 label: "Pixel Fences",
                 cat:   "Fence",
                 description:
-                    "Pixel fence lines around the front and sides of the yard.",
-                match: ["^fence - ", "^fence extension"],
+                    "Pixel fence lines around the front and sides of the yard, plus the standard extension segments.",
+                // Excludes "fence extension (full)" — the single large
+                // full-length extension gets its own dot.
+                match: ["^fence - ", "^fence extension$"],
                 px: 48, py: 86
             },
             {
