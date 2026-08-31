@@ -42,6 +42,21 @@ window.HILLARD_ZONES = {
         padTop:     3,
         padBottom:  5,
 
+        // Whitelist mode — only these group keys render. Everything else
+        // is skipped so we can spotlight one or two props at a time and
+        // grow the display as we author custom notes for each.
+        showOnly: ["headless horsman"],
+
+        // Per-key panel overrides. `hideName` suppresses the panel title,
+        // `note` shows a custom line in place of the auto description,
+        // `pixels` overrides the pixel count.
+        overrides: {
+            "headless horsman": {
+                hideName: true,
+                note: "This prop is 8' tall and 8' wide!"
+            }
+        },
+
         aggregate: [
             {
                 key: "roofline",

@@ -608,8 +608,35 @@
 
             const remaining = new Set(data.groups.map(g => g.key));
             const dots = [];
+            const overrides = cfg.overrides || {};
+            // Whitelist mode: when `showOnly` is set, keep only those keys.
+            // Applies to both aggregate-generated dots (matched by their
+            // `agg.key`) and raw group dots (matched by their group key).
+            const showOnly = Array.isArray(cfg.showOnly) && cfg.showOnly.length
+                ? new Set(cfg.showOnly)
+                : null;
+
+            function applyOverride(dot, key) {
+                const o = overrides[key];
+                if (!o) return dot;
+                if (o.note != null)     dot.note     = o.note;
+                if (o.hideName != null) dot.hideName = !!o.hideName;
+                if (o.pixels != null)   dot.pixels   = o.pixels;
+                return dot;
+            }
 
             for (const agg of (cfg.aggregate || [])) {
+                if (showOnly && !showOnly.has(agg.key)) {
+                    // Still consume matches so raw-group loop doesn't
+                    // double-render them.
+                    const patterns = agg.match.map(s => new RegExp(s));
+                    for (const g of data.groups) {
+                        if (remaining.has(g.key) && patterns.some(re => re.test(g.key))) {
+                            remaining.delete(g.key);
+                        }
+                    }
+                    continue;
+                }
                 const patterns = agg.match.map(s => new RegExp(s));
                 const matched = data.groups.filter(g =>
                     remaining.has(g.key) && patterns.some(re => re.test(g.key))
@@ -629,7 +656,7 @@
                     totalPixels += pixelsOfGroup(g, data);
                     memberNames.push(...g.members);
                 }
-                dots.push({
+                dots.push(applyOverride({
                     key: "agg-" + agg.key,
                     label: agg.label,
                     cat:   agg.cat || matched[0].cat,
@@ -646,7 +673,7 @@
                         pixels: pixelsOfGroup(g, data)
                     })),
                     aggregated: true
-                });
+                }, agg.key));
             }
 
             // Everything not aggregated → one dot per auto-group
@@ -655,8 +682,9 @@
             for (const g of data.groups) {
                 if (!remaining.has(g.key)) continue;
                 if (hidden.has(g.key)) continue;
+                if (showOnly && !showOnly.has(g.key)) continue;
                 const pos = positions[g.key];
-                dots.push({
+                dots.push(applyOverride({
                     key: g.key,
                     label: g.label,
                     cat: g.cat,
@@ -670,7 +698,7 @@
                     members: g.members,
                     subGroups: null,
                     aggregated: false
-                });
+                }, g.key));
             }
 
             return dots;
@@ -734,12 +762,23 @@
 
         // -- Panel --
         function showPanel(dot) {
-            $("#zone-panel-title").textContent = dot.label;
-            $("#zone-panel-cat").textContent   = dot.cat || "";
-            $("#zone-panel-cat").style.color   = colorForCat(dot.cat);
-            $("#zone-panel-cat").style.background =
+            const titleEl = $("#zone-panel-title");
+            const catEl   = $("#zone-panel-cat");
+            const descEl  = $("#zone-panel-desc");
+
+            titleEl.textContent = dot.hideName ? "" : dot.label;
+            titleEl.hidden      = !!dot.hideName;
+
+            // Category chip echoes the prop name for singletons (e.g.
+            // "Headless Horseman"); hide it too when the name is suppressed.
+            catEl.textContent  = dot.hideName ? "" : (dot.cat || "");
+            catEl.hidden       = !!dot.hideName;
+            catEl.style.color  = colorForCat(dot.cat);
+            catEl.style.background =
                 "rgba(" + hexToRgb(colorForCat(dot.cat)) + ",0.14)";
-            $("#zone-panel-desc").textContent  = dot.description || "";
+
+            // A custom `note` (from overrides) replaces the auto description.
+            descEl.textContent = dot.note || dot.description || "";
 
             const stats = $("#zone-panel-stats");
             stats.innerHTML = "";
@@ -749,31 +788,35 @@
                 stat(stats, "Subgroups", dot.subGroups.length);
             }
 
+            // When the prop name is suppressed, don't leak it via the
+            // individual-prop list either.
             const propsHost = $("#zone-panel-props");
             let listHtml = "";
-            if (dot.aggregated && dot.subGroups) {
-                const items = dot.subGroups
-                    .sort((a, b) => b.count - a.count)
-                    .map(sg => `
-                        <li>
-                            <span class="prop-name">${escapeHtml(sg.label)}</span>
-                            <span class="prop-count">${sg.count > 1 ? sg.count + "× · " : ""}<strong>${sg.pixels.toLocaleString()}</strong> px</span>
-                        </li>`).join("");
-                listHtml = `<strong>Includes</strong><ul>${items}</ul>`;
-            } else if (dot.members && dot.members.length > 1) {
-                const seasonData = layout[currentSeason];
-                const items = dot.members.map(name => {
-                    const m = seasonData.models.find(mm => mm.name === name);
-                    const px = pixelsOfModel(m);
-                    return `
-                        <li>
-                            <span class="prop-name">${escapeHtml(name)}</span>
-                            <span class="prop-count"><strong>${px.toLocaleString()}</strong> px</span>
-                        </li>`;
-                }).join("");
-                listHtml = `<strong>Individual props</strong><ul>${items}</ul>`;
-            } else if (dot.members && dot.members.length === 1) {
-                listHtml = `<strong>Prop name</strong><ul><li><span class="prop-name">${escapeHtml(dot.members[0])}</span></li></ul>`;
+            if (!dot.hideName) {
+                if (dot.aggregated && dot.subGroups) {
+                    const items = dot.subGroups
+                        .sort((a, b) => b.count - a.count)
+                        .map(sg => `
+                            <li>
+                                <span class="prop-name">${escapeHtml(sg.label)}</span>
+                                <span class="prop-count">${sg.count > 1 ? sg.count + "× · " : ""}<strong>${sg.pixels.toLocaleString()}</strong> px</span>
+                            </li>`).join("");
+                    listHtml = `<strong>Includes</strong><ul>${items}</ul>`;
+                } else if (dot.members && dot.members.length > 1) {
+                    const seasonData = layout[currentSeason];
+                    const items = dot.members.map(name => {
+                        const m = seasonData.models.find(mm => mm.name === name);
+                        const px = pixelsOfModel(m);
+                        return `
+                            <li>
+                                <span class="prop-name">${escapeHtml(name)}</span>
+                                <span class="prop-count"><strong>${px.toLocaleString()}</strong> px</span>
+                            </li>`;
+                    }).join("");
+                    listHtml = `<strong>Individual props</strong><ul>${items}</ul>`;
+                } else if (dot.members && dot.members.length === 1) {
+                    listHtml = `<strong>Prop name</strong><ul><li><span class="prop-name">${escapeHtml(dot.members[0])}</span></li></ul>`;
+                }
             }
             propsHost.innerHTML = listHtml;
 
@@ -810,8 +853,9 @@
         }
 
         function showTooltip(dot, evt) {
-            tooltip.textContent = dot.label +
-                (dot.count > 1 ? ` · ${dot.count}×` : "");
+            const label = dot.hideName ? "Click for details" : dot.label;
+            const suffix = (!dot.hideName && dot.count > 1) ? ` · ${dot.count}×` : "";
+            tooltip.textContent = label + suffix;
             tooltip.hidden = false;
             tooltip.style.left = evt.clientX + "px";
             tooltip.style.top  = (evt.clientY - 28) + "px";
@@ -857,12 +901,21 @@
             if (e.key === "Escape" && !panel.hidden) hidePanel();
         });
 
-        // Section subtitle: real numbers from the xLights export
+        // Section subtitle: real numbers from the xLights export. When the
+        // display is in whitelist mode (spotlighting a few props at a time),
+        // report visible dots vs. show total so the copy stays honest.
         const lead = $("#prop-count-lead");
         function updateLead(season) {
             const d = layout[season];
-            if (lead && d) lead.textContent =
-                `${d.count} props across ${d.groupCount} groups.`;
+            if (!lead || !d) return;
+            const visible = currentDots.length;
+            const totalGroups = d.groupCount;
+            if (visible && visible < totalGroups) {
+                lead.textContent =
+                    `${visible} highlighted ${visible === 1 ? "prop" : "props"} · ${d.count} total in the show. More coming soon.`;
+            } else {
+                lead.textContent = `${d.count} props across ${totalGroups} groups.`;
+            }
         }
 
         // Season swap
