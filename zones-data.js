@@ -127,7 +127,7 @@ window.HILLARD_ZONES = {
                 description:
                     "24 animated ghost silhouettes flanking the upstairs windows — eyes and mouths animate independently per ghost.",
                 match: ["^ghost - (loft|paige) - (upper|lower)$"],
-                px: 65, py: 22
+                px: 62, py: 22
             },
             {
                 key: "roofline",
