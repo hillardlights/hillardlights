@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Bebas+Neue&family=Creepster&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css?v=11">
+    <link rel="stylesheet" href="styles.css?v=12">
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%83%3C/text%3E%3C/svg%3E">
 </head>
@@ -218,18 +218,15 @@
     <div class="section-inner">
         <div class="section-header">
             <span class="eyebrow">Schedule</span>
-            <h2 class="section-title">Upcoming shows</h2>
-            <p class="section-lead">Show times and special nights. Check back — dates are updated regularly.</p>
-        </div>
-
-        <div class="schedule-filters">
-            <button class="chip active" type="button" data-filter="all">All</button>
-            <button class="chip" type="button" data-filter="halloween">🎃 Halloween</button>
-            <button class="chip" type="button" data-filter="christmas">🎄 Christmas</button>
+            <h2 class="section-title">
+                <span data-halloween>Halloween show times</span>
+                <span data-christmas>Christmas show times</span>
+            </h2>
+            <p class="section-lead">Show times and special nights. Toggle seasons in the upper-right anytime.</p>
         </div>
 
         <div class="schedule-list" id="schedule-list"></div>
-        <p class="schedule-empty" id="schedule-empty" hidden>No upcoming shows in this category yet. Check back soon.</p>
+        <p class="schedule-empty" id="schedule-empty" hidden>No upcoming shows for this season yet. Check back soon.</p>
     </div>
 </section>
 
@@ -333,10 +330,10 @@
     </div>
 </footer>
 
-<script src="data.js?v=11"></script>
-<script src="layout-data.js?v=11"></script>
-<script src="zones-data.js?v=11"></script>
-<script src="scripts.js?v=11"></script>
+<script src="data.js?v=12"></script>
+<script src="layout-data.js?v=12"></script>
+<script src="zones-data.js?v=12"></script>
+<script src="scripts.js?v=12"></script>
 
 </body>
 </html>

@@ -74,15 +74,22 @@
         return now < halloweenStart ? "halloween" : "christmas";
     }
 
+    // Season subscribers — invoked whenever the active season changes so
+    // countdown, schedule, etc. can re-render for the new season.
+    const seasonSubscribers = [];
+    function onSeasonChange(fn) { seasonSubscribers.push(fn); }
+
     function applySeason(season) {
         document.documentElement.setAttribute("data-theme", season);
         try { localStorage.setItem("hl-season", season); } catch (e) { /* ignore */ }
         applyHeroVideo(season);
+        seasonSubscribers.forEach(fn => { try { fn(season); } catch (e) { /* ignore */ } });
     }
 
     let storedSeason = null;
     try { storedSeason = localStorage.getItem("hl-season"); } catch (e) { /* ignore */ }
-    applySeason(storedSeason || detectSeason());
+    const initialSeason = storedSeason || detectSeason();
+    applySeason(initialSeason);
 
     const themeToggle = $(".theme-toggle");
     if (themeToggle) {
@@ -90,6 +97,10 @@
             const cur = document.documentElement.getAttribute("data-theme");
             applySeason(cur === "halloween" ? "christmas" : "halloween");
         });
+    }
+
+    function currentSeason() {
+        return document.documentElement.getAttribute("data-theme") || "halloween";
     }
 
     // --------------------------------------------------------
@@ -113,31 +124,56 @@
     }
 
     // --------------------------------------------------------
-    // Countdown
+    // Countdown (per-season; re-renders on toggle)
     // --------------------------------------------------------
-    const countdown = data.countdown;
     const cdEl = $("#countdown");
-    if (cdEl && countdown && countdown.target) {
-        const target = new Date(countdown.target);
-        if (!isNaN(target.getTime()) && target > new Date()) {
-            cdEl.hidden = false;
-            $("#countdown-label").textContent = countdown.label || "Coming up";
-            const tick = () => {
-                const diff = target - new Date();
-                if (diff <= 0) { cdEl.hidden = true; return; }
-                const d = Math.floor(diff / 86400000);
-                const h = Math.floor((diff / 3600000) % 24);
-                const m = Math.floor((diff / 60000) % 60);
-                const s = Math.floor((diff / 1000) % 60);
-                $("#cd-days").textContent = d;
-                $("#cd-hours").textContent = String(h).padStart(2, "0");
-                $("#cd-mins").textContent = String(m).padStart(2, "0");
-                $("#cd-secs").textContent = String(s).padStart(2, "0");
-            };
-            tick();
-            setInterval(tick, 1000);
-        }
+    let cdInterval = null;
+
+    function pickCountdown(season) {
+        const c = data.countdown;
+        if (!c) return null;
+        // Per-season object: { halloween: {label,target}, christmas: {...} }
+        if (c[season] && typeof c[season] === "object") return c[season];
+        // Legacy flat shape: { label, target }
+        if (c.target) return c;
+        return null;
     }
+
+    function applyCountdown(season) {
+        if (!cdEl) return;
+        if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
+
+        const countdown = pickCountdown(season);
+        if (!countdown || !countdown.target) { cdEl.hidden = true; return; }
+
+        const target = new Date(countdown.target);
+        if (isNaN(target.getTime()) || target <= new Date()) { cdEl.hidden = true; return; }
+
+        cdEl.hidden = false;
+        $("#countdown-label").textContent = countdown.label || "Coming up";
+
+        const tick = () => {
+            const diff = target - new Date();
+            if (diff <= 0) {
+                cdEl.hidden = true;
+                if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
+                return;
+            }
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            $("#cd-days").textContent = d;
+            $("#cd-hours").textContent = String(h).padStart(2, "0");
+            $("#cd-mins").textContent = String(m).padStart(2, "0");
+            $("#cd-secs").textContent = String(s).padStart(2, "0");
+        };
+        tick();
+        cdInterval = setInterval(tick, 1000);
+    }
+
+    applyCountdown(currentSeason());
+    onSeasonChange(applyCountdown);
 
     // --------------------------------------------------------
     // Schedule
@@ -162,14 +198,13 @@
 
     // An event is "upcoming" if its LAST day (dateEnd or date) is today or later
     const upcoming = events.filter(e => (e._dateEnd || e._date) >= now);
-    let nextEventDate = upcoming.length ? +upcoming[0]._date : null;
 
-    function renderEvents(filter) {
+    function renderEvents(season) {
         const list = $("#schedule-list");
         const empty = $("#schedule-empty");
         if (!list) return;
 
-        const filtered = upcoming.filter(e => filter === "all" || e.season === filter);
+        const filtered = upcoming.filter(e => e.season === season);
 
         if (!filtered.length) {
             list.innerHTML = "";
@@ -177,6 +212,8 @@
             return;
         }
         empty.hidden = true;
+
+        const nextEventDate = +filtered[0]._date;
 
         list.innerHTML = filtered.map(e => {
             const d  = e._date;
@@ -226,15 +263,8 @@
         observeReveals();
     }
 
-    renderEvents("all");
-
-    $$(".schedule-filters .chip").forEach(btn => {
-        btn.addEventListener("click", () => {
-            $$(".schedule-filters .chip").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            renderEvents(btn.dataset.filter);
-        });
-    });
+    renderEvents(currentSeason());
+    onSeasonChange(renderEvents);
 
     // --------------------------------------------------------
     // Videos

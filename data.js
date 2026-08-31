@@ -41,11 +41,11 @@ window.HILLARD = {
     text: "🎃 Halloween 2026 opening night is Sunday, October 11. Tune in to 105.3 FM."
   },
 
-  // Optional countdown target. Leave as "" to hide.
+  // Optional per-season countdown target. Leave a target as "" to hide.
   // Format: "YYYY-MM-DDTHH:mm" in your local time.
   countdown: {
-    label: "Opening Night",
-    target: "2026-10-11T18:30"
+    halloween: { label: "Halloween Opening Night", target: "2026-10-11T18:30" },
+    christmas: { label: "Christmas Opening Night", target: "2026-12-01T18:00" }
   },
 
   // Short "About the show" paragraphs shown in the About section.
