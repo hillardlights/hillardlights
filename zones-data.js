@@ -71,7 +71,8 @@ window.HILLARD_ZONES = {
             "truss-bats",
             "MH",
             "matrix-truss",
-            "fences"
+            "fences",
+            "dmx-floods"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -119,6 +120,12 @@ window.HILLARD_ZONES = {
             },
             "MH": {
                 note: "Eight 380-watt DMX beam fixtures on the front truss. Pan, tilt, gobo, and color wheel are choreographed per song."
+            },
+            "dmx-floods": {
+                // xLights counts each flood as 1 "pixel"; hide that to avoid
+                // a misleading "15 pixels" stat next to Props: 15.
+                pixels: 0,
+                note: "15 DMX-controlled 30-watt RGB flood lights — 9 upper along the eaves and 6 lower on the walls. Each is independently color-choreographed for wall washes and chases."
             }
         },
 

@@ -809,7 +809,7 @@
             const stats = $("#zone-panel-stats");
             stats.innerHTML = "";
             stat(stats, "Props",   dot.count);
-            stat(stats, "Pixels",  dot.pixels.toLocaleString());
+            if (dot.pixels) stat(stats, "Pixels", dot.pixels.toLocaleString());
             if (dot.size) stat(stats, "Size", dot.size);
             if (dot.aggregated && dot.subGroups) {
                 stat(stats, "Subgroups", dot.subGroups.length);
