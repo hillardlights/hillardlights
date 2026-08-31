@@ -80,7 +80,7 @@ window.HILLARD = {
     {
       season: "halloween", type: "special",
       date: "2026-10-11",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Opening Night",
       subtitle: "Sun",
       description: "First show of the 2026 Halloween season. Come see the new songs and animations."
@@ -88,49 +88,49 @@ window.HILLARD = {
     {
       season: "halloween", type: "show",
       date: "2026-10-12", dateEnd: "2026-10-15",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Mon – Thu"
     },
     {
       season: "halloween", type: "show",
       date: "2026-10-16", dateEnd: "2026-10-17",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
     {
       season: "halloween", type: "show",
       date: "2026-10-18", dateEnd: "2026-10-22",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Thu"
     },
     {
       season: "halloween", type: "show",
       date: "2026-10-23", dateEnd: "2026-10-24",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
     {
       season: "halloween", type: "show",
       date: "2026-10-25", dateEnd: "2026-10-29",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Thu"
     },
     {
       season: "halloween", type: "show",
       date: "2026-10-30",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
       title: "Halloween Eve",
       subtitle: "Fri"
     },
     {
       season: "halloween", type: "special",
       date: "2026-10-31",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
       title: "Halloween Night 🎃",
       subtitle: "Sat",
       description: "The big one. Candy, extra songs, and a full run of the show."
@@ -147,7 +147,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "special",
       date: "2026-12-01",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Christmas Opening Night 🎄",
       subtitle: "Tue",
       description: "First night of the Christmas show. Fresh songs and a full display walkthrough."
@@ -155,56 +155,56 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-02", dateEnd: "2026-12-03",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Wed – Thu"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-04", dateEnd: "2026-12-05",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-06", dateEnd: "2026-12-10",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Thu"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-11", dateEnd: "2026-12-12",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-13", dateEnd: "2026-12-17",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Thu"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-18", dateEnd: "2026-12-19",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-20", dateEnd: "2026-12-23",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Wed"
     },
     {
       season: "christmas", type: "special",
       date: "2026-12-24",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Christmas Eve 🎄",
       subtitle: "Thu",
       description: "One of the biggest nights of the season. Full show through the evening."
@@ -212,7 +212,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "special",
       date: "2026-12-25",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
       title: "Christmas Night 🎄",
       subtitle: "Fri",
       description: "The main event. Come see the show for the holidays."
@@ -220,14 +220,14 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-26",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
       title: "Boxing Day",
       subtitle: "Sat"
     },
     {
       season: "christmas", type: "show",
       date: "2026-12-27", dateEnd: "2026-12-31",
-      time: "TBD", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weeknights",
       subtitle: "Sun – Thu",
       description: "Final week of the 2026 Christmas season."
