@@ -51,7 +51,15 @@ window.HILLARD_ZONES = {
         // Whitelist mode — only these group keys render. Everything else
         // is skipped so we can spotlight one or two props at a time and
         // grow the display as we author custom notes for each.
-        showOnly: ["headless horsman", "pumpkin arch", "singing-pumpkins"],
+        showOnly: [
+            "headless horsman",
+            "pumpkin arch",
+            "singing-pumpkins",
+            "tombstone-skull",
+            "tombstone-rip",
+            "rosa tomb",
+            "triune tomb"
+        ],
 
         // Per-key panel overrides. All fields optional:
         //   hideName: suppress the panel title AND category chip
@@ -73,6 +81,11 @@ window.HILLARD_ZONES = {
                 pixels: 19,
                 size: "7.5' tall",
                 note: "Home Depot arch with the faces carved out. Diffused with photographer lighting sheets and lit by a puck light per face — every pumpkin can go its own color."
+            },
+            "rosa tomb": {
+                // Auto-generated description mis-attributes bat sub-models;
+                // override with something accurate.
+                note: "Four ornate rosa tombs — rosette detailing with per-tomb pixel animation."
             }
         },
 
