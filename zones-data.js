@@ -114,6 +114,9 @@ window.HILLARD_ZONES = {
                 // group.
                 label: "Large Flying Bats",
                 note: "12 large flying bats mounted around the roof with independently animated wings."
+            },
+            "MH": {
+                note: "Eight 380-watt DMX beam fixtures on the front truss. Pan, tilt, gobo, and color wheel are choreographed per song."
             }
         },
 
@@ -216,7 +219,7 @@ window.HILLARD_ZONES = {
         // auto-computed centroid from world coords.
         positions: {
             "headless horsman":               { px: 47, py:  6 },
-            "MH":                             { px: 48, py: 22 },
+            "MH":                             { px: 44, py: 18 },
             "steampunk spinner":              { px: 32, py: 45 },
             "spooky tree":                    { px: 24, py: 40 },
 
