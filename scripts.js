@@ -587,7 +587,13 @@
         }
 
         function pixelsOfModel(m) {
-            return (m && ((m.pixels && m.pixels.length) || m.pixelCount)) || 0;
+            if (!m) return 0;
+            if (m.pixels && m.pixels.length) return m.pixels.length;
+            // xLights matrix models store pixelCount as "pixels per string";
+            // Custom/Line models default strings=1 so this is safe globally.
+            const per = m.pixelCount || 0;
+            const strings = m.strings || 1;
+            return per * strings;
         }
 
         function pixelsOfGroup(g, seasonData) {
