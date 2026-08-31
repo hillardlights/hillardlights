@@ -863,6 +863,68 @@ a { color: inherit; }
 }
 
 /* ------------------------------------------------------------
+   By the Numbers — hero stat strip between Explore and Schedule
+   ------------------------------------------------------------ */
+.stats { padding-top: 40px; padding-bottom: 40px; }
+
+.stat-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1080px;
+    margin-inline: auto;
+}
+
+.stat-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 28px 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+    transition: border-color .2s, transform .2s;
+}
+
+.stat-cell:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-family: "Bebas Neue", var(--font-display, inherit);
+    font-size: clamp(38px, 6vw, 56px);
+    line-height: 1;
+    letter-spacing: .02em;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--muted);
+}
+
+/* Hide the Halloween-2026 stat strip while the site is in Christmas
+   mode — the numbers are season-specific. */
+[data-theme="christmas"] .stats { display: none; }
+
+@media (max-width: 720px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-cell { padding: 20px 12px; }
+}
+
+/* ------------------------------------------------------------
    Interactive layout (setup section)
    PNG of the xLights preview with clickable zone polygons on top.
    Clicking a zone opens a side panel listing every real prop in it
