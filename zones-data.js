@@ -51,7 +51,7 @@ window.HILLARD_ZONES = {
         // Whitelist mode — only these group keys render. Everything else
         // is skipped so we can spotlight one or two props at a time and
         // grow the display as we author custom notes for each.
-        showOnly: ["headless horsman"],
+        showOnly: ["headless horsman", "pumpkin arch"],
 
         // Per-key panel overrides. All fields optional:
         //   hideName: suppress the panel title AND category chip
@@ -66,6 +66,12 @@ window.HILLARD_ZONES = {
                     { label: "Rider", pixels: 174 },
                     { label: "Horse", pixels: 241 }
                 ]
+            },
+            "pumpkin arch": {
+                // xLights reports 0 pixels because Arches models are
+                // string-based; the real count is one puck per carved face.
+                pixels: 19,
+                note: "Home Depot arch with the faces carved out. Diffused with photographer lighting sheets and lit by a puck light per face — every pumpkin can go its own color."
             }
         },
 
