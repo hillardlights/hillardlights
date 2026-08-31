@@ -72,7 +72,8 @@ window.HILLARD_ZONES = {
             "MH",
             "matrix-truss",
             "fences",
-            "dmx-floods"
+            "dmx-floods",
+            "spooky tree"
         ],
 
         // Per-key panel overrides. All fields optional:
