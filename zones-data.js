@@ -33,6 +33,18 @@ window.HILLARD_ZONES = {
         image: "images/layouts/halloween.jpg",
         alt:   "Halloween xLights layout",
 
+        // Year progression. Chips render above the layout so visitors can
+        // flip through past years. Only the `current: true` year gets the
+        // interactive prop dots; past years show the image only.
+        years: [
+            { year: 2021, image: "images/layouts/history/halloween-2021.jpg" },
+            { year: 2022, image: "images/layouts/history/halloween-2022.jpg" },
+            { year: 2023, image: "images/layouts/history/halloween-2023.jpg" },
+            { year: 2024, image: "images/layouts/history/halloween-2024.jpg" },
+            { year: 2025, image: "images/layouts/history/halloween-2025.jpg" },
+            { year: 2026, image: "images/layouts/halloween.jpg", current: true }
+        ],
+
         // Calibrated for halloween.jpg (3135x1280). The rendered preview
         // crops in slightly on the left/right and has a bit of headroom
         // top/bottom; per-edge padding lets the auto-mapping approximate

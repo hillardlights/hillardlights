@@ -577,6 +577,7 @@
         const colorForCat = c => CAT_COLORS[c] || CAT_COLORS.Other;
 
         let currentSeason = null;
+        let currentYear   = null;
         let activeKey     = null;
         let currentDots   = [];
 
@@ -730,6 +731,65 @@
             return dots;
         }
 
+        function pickCurrentYear(season) {
+            const cfg = zonesData[season];
+            if (!cfg || !Array.isArray(cfg.years) || !cfg.years.length) return null;
+            return cfg.years.find(y => y.current) || cfg.years[cfg.years.length - 1];
+        }
+
+        function renderYearChips(season) {
+            const host = $("#layout-years");
+            if (!host) return;
+            host.innerHTML = "";
+            const cfg = zonesData[season];
+            const years = cfg && Array.isArray(cfg.years) ? cfg.years : [];
+            if (years.length < 2) return; // no chips if there's nothing to compare
+            for (const y of years) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "chip";
+                btn.dataset.year = y.year;
+                btn.textContent = y.year;
+                btn.setAttribute("role", "tab");
+                btn.setAttribute("aria-selected", "false");
+                btn.addEventListener("click", () => selectYear(y));
+                host.appendChild(btn);
+            }
+            updateChipActive();
+        }
+
+        function updateChipActive() {
+            const host = $("#layout-years");
+            if (!host) return;
+            const yr = currentYear ? String(currentYear.year) : null;
+            Array.from(host.children).forEach(btn => {
+                const on = btn.dataset.year === yr;
+                btn.classList.toggle("active", on);
+                btn.setAttribute("aria-selected", on ? "true" : "false");
+            });
+        }
+
+        function applyYearImage() {
+            if (!currentYear) return;
+            img.setAttribute("src", currentYear.image);
+            const seasonLabel = currentSeason === "christmas" ? "Christmas" : "Halloween";
+            img.setAttribute("alt", `${seasonLabel} ${currentYear.year} layout`);
+            // Dots only make sense on the current year; hide the overlay
+            // (and the hover hint) when viewing a past year.
+            svg.style.display = currentYear.current ? "" : "none";
+            const hint = $(".setup-hint");
+            if (hint) hint.style.display = currentYear.current ? "" : "none";
+        }
+
+        function selectYear(yearObj) {
+            if (currentYear && currentYear.year === yearObj.year) return;
+            currentYear = yearObj;
+            hidePanel();
+            applyYearImage();
+            updateChipActive();
+            updateLead(currentSeason);
+        }
+
         function renderSeason(season) {
             if (season === currentSeason) return;
             currentSeason = season;
@@ -739,7 +799,10 @@
             const data = layout[season];
             if (!cfg || !data) return;
 
-            img.setAttribute("src", cfg.image);
+            renderYearChips(season);
+            currentYear = pickCurrentYear(season);
+
+            img.setAttribute("src", (currentYear && currentYear.image) || cfg.image);
             img.setAttribute("alt", cfg.alt || "");
 
             while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -784,6 +847,9 @@
                 g.appendChild(c);
                 svg.appendChild(g);
             }
+
+            applyYearImage();
+            updateChipActive();
         }
 
         // -- Panel --
@@ -937,13 +1003,17 @@
             if (e.key === "Escape" && !panel.hidden) hidePanel();
         });
 
-        // Section subtitle: real numbers from the xLights export. When the
-        // display is in whitelist mode (spotlighting a few props at a time),
-        // report visible dots vs. show total so the copy stays honest.
+        // Section subtitle: real numbers from the xLights export for the
+        // current year; a "past year" line when browsing older layouts.
         const lead = $("#prop-count-lead");
         function updateLead(season) {
             const d = layout[season];
             if (!lead || !d) return;
+            if (currentYear && !currentYear.current) {
+                lead.textContent =
+                    `Layout from ${currentYear.year} — past-year snapshot, no prop details.`;
+                return;
+            }
             const visible = currentDots.length;
             const totalGroups = d.groupCount;
             if (visible && visible < totalGroups) {

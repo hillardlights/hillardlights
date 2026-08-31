@@ -1142,13 +1142,17 @@ a { color: inherit; }
    Chips (filters)
    ------------------------------------------------------------ */
 .schedule-filters,
-.gallery-filters {
+.gallery-filters,
+.layout-years {
     display: flex;
     gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 36px;
 }
+
+.layout-years { margin-bottom: 16px; }
+.layout-years:empty { display: none; }
 
 .chip {
     padding: 8px 18px;
