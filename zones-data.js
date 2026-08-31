@@ -165,7 +165,7 @@ window.HILLARD_ZONES = {
                 description:
                     "Rectangular stage-truss frame with 1-inch spacing pixels on a grid. Runs text scrolls, VU meters, and pattern effects across all four sides.",
                 match: ["^matrix - column"],
-                px: 38, py: 53
+                px: 38, py: 55
             },
             {
                 key: "roofline",
