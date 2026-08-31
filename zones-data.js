@@ -64,7 +64,8 @@ window.HILLARD_ZONES = {
             "catcus",
             "Gothic-Arch",
             "gothic-gate",
-            "lamppost"
+            "lamppost",
+            "ghosts"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -118,6 +119,15 @@ window.HILLARD_ZONES = {
                     "Twin pixel-matrix gates flanking the gothic arch — vertical sweeps and full-gate patterns synced to the beat.",
                 match: ["^Gate (Left|Right)$"],
                 px: 67, py: 63
+            },
+            {
+                key: "ghosts",
+                label: "Ghosts",
+                cat:   "Ghost",
+                description:
+                    "24 animated ghost silhouettes flanking the upstairs windows — eyes and mouths animate independently per ghost.",
+                match: ["^ghost - (loft|paige) - (upper|lower)$"],
+                px: 50, py: 18
             },
             {
                 key: "roofline",
