@@ -151,7 +151,7 @@ window.HILLARD_ZONES = {
                 description:
                     "Four large flying bats mounted on the front truss — two on each side, with independently animated wings.",
                 match: ["^bat - flying - truss - (left|right)$"],
-                px: 49, py: 50
+                px: 49, py: 60
             },
             {
                 key: "roofline",
@@ -239,7 +239,7 @@ window.HILLARD_ZONES = {
             "spider":                         { px: 72, py: 78 },
             "catcus":                         { px: 85, py: 82 },
 
-            "bat - flying - large":           { px: 35, py: 38 },
+            "bat - flying - large":           { px: 40, py: 38 },
             "bat - flying - truss - left":    { px: 42, py: 20 },
             "bat - flying - truss - right":   { px: 55, py: 20 },
             "bat-tree":                       { px: 77, py: 25 },
