@@ -224,7 +224,7 @@ window.HILLARD_ZONES = {
             "bat - flying - large":           { px: 85, py: 22 },
             "bat - flying - truss - left":    { px: 42, py: 20 },
             "bat - flying - truss - right":   { px: 55, py: 20 },
-            "bat-tree":                       { px: 80, py: 25 },
+            "bat-tree":                       { px: 77, py: 25 },
 
             "ghost - loft - upper":           { px: 68, py: 12 },
             "ghost - loft - lower":           { px: 66, py: 25 },
