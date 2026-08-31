@@ -31,6 +31,27 @@
     }
 
     // --------------------------------------------------------
+    // Hero video (optional — set data.heroVideo or per-season
+    // override in data.js). If empty, CSS animated bg shows.
+    // --------------------------------------------------------
+    function applyHeroVideo(season) {
+        const vid = $("#hero-video");
+        if (!vid) return;
+        const src = (data.heroVideoBySeason && data.heroVideoBySeason[season])
+            || data.heroVideo || "";
+        if (!src) {
+            vid.classList.remove("playing");
+            if (vid.src) { vid.pause(); vid.removeAttribute("src"); vid.load(); }
+            return;
+        }
+        if (vid.getAttribute("src") === src) return;
+        vid.src = src;
+        vid.load();
+        vid.play().then(() => vid.classList.add("playing"))
+                  .catch(() => vid.classList.remove("playing"));
+    }
+
+    // --------------------------------------------------------
     // Season detection & toggle
     // --------------------------------------------------------
     function detectSeason() {
@@ -56,6 +77,7 @@
     function applySeason(season) {
         document.documentElement.setAttribute("data-theme", season);
         try { localStorage.setItem("hl-season", season); } catch (e) { /* ignore */ }
+        applyHeroVideo(season);
     }
 
     let storedSeason = null;

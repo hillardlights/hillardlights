@@ -19,6 +19,21 @@ window.HILLARD = {
   //   In-between       -> whichever is next
   season: "auto",
 
+  // Optional hero background video — full-viewport looping highlight reel
+  // playing behind the title. Muted, auto-play. Leave as "" to keep the
+  // current animated CSS background (moon, stars, bats, snow) instead.
+  //
+  // Drop a small (10-30s) mp4 into videos/ and set the path here. Tips:
+  //   - Encode with H.264 + AAC for broad browser support
+  //   - Keep under ~5MB for fast load; downscale to 1280px wide if bigger
+  //   - Silent-friendly (no audio needed since it plays muted)
+  heroVideo: "",
+  // Optional per-season override. If set, wins over heroVideo above.
+  heroVideoBySeason: {
+    halloween: "",
+    christmas: ""
+  },
+
   // Show a big banner near the top with news / important info.
   // Set active: false to hide it.
   announcement: {
