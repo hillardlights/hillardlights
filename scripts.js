@@ -622,7 +622,25 @@
                 if (o.note != null)     dot.note     = o.note;
                 if (o.hideName != null) dot.hideName = !!o.hideName;
                 if (o.pixels != null)   dot.pixels   = o.pixels;
+                if (o.size != null)     dot.size     = o.size;
+                if (Array.isArray(o.subs)) dot.overrideSubs = o.subs;
                 return dot;
+            }
+
+            // Auto-derive a "W' × H'" size string from the xLights model's
+            // w/h, using cfg.scaleUnitsPerFoot as the conversion factor.
+            // Only applies to single-model groups; multi-model groups have
+            // no single "size" that makes sense.
+            const scale = cfg.scaleUnitsPerFoot;
+            function autoSize(members) {
+                if (!scale || !members || members.length !== 1) return null;
+                const m = data.models.find(mm => mm.name === members[0]);
+                if (!m || !m.w || !m.h) return null;
+                const fmt = n => {
+                    const rounded = Math.round(n * 10) / 10;
+                    return rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1);
+                };
+                return `${fmt(m.w / scale)}' × ${fmt(m.h / scale)}'`;
             }
 
             for (const agg of (cfg.aggregate || [])) {
@@ -695,6 +713,7 @@
                     py: pos && pos.py,
                     count: g.count,
                     pixels: pixelsOfGroup(g, data),
+                    size: autoSize(g.members),
                     members: g.members,
                     subGroups: null,
                     aggregated: false
@@ -784,6 +803,7 @@
             stats.innerHTML = "";
             stat(stats, "Props",   dot.count);
             stat(stats, "Pixels",  dot.pixels.toLocaleString());
+            if (dot.size) stat(stats, "Size", dot.size);
             if (dot.aggregated && dot.subGroups) {
                 stat(stats, "Subgroups", dot.subGroups.length);
             }
@@ -793,7 +813,16 @@
             const propsHost = $("#zone-panel-props");
             let listHtml = "";
             if (!dot.hideName) {
-                if (dot.aggregated && dot.subGroups) {
+                if (Array.isArray(dot.overrideSubs) && dot.overrideSubs.length) {
+                    // Curated breakdown from zones-data overrides (e.g.
+                    // Rider / Horse for the headless horseman).
+                    const items = dot.overrideSubs.map(sg => `
+                        <li>
+                            <span class="prop-name">${escapeHtml(sg.label)}</span>
+                            <span class="prop-count"><strong>${(sg.pixels || 0).toLocaleString()}</strong> px</span>
+                        </li>`).join("");
+                    listHtml = `<strong>Breakdown</strong><ul>${items}</ul>`;
+                } else if (dot.aggregated && dot.subGroups) {
                     const items = dot.subGroups
                         .sort((a, b) => b.count - a.count)
                         .map(sg => `

@@ -42,18 +42,30 @@ window.HILLARD_ZONES = {
         padTop:     3,
         padBottom:  5,
 
+        // xLights layout units per foot. Anchored on the headless horseman
+        // (275.475 units ≈ 8 ft), cross-checked against gothic arch,
+        // spooky tree, spider web, and singing pumpkin. Used to auto-format
+        // prop sizes (w × h) in the detail panel.
+        scaleUnitsPerFoot: 34.44,
+
         // Whitelist mode — only these group keys render. Everything else
         // is skipped so we can spotlight one or two props at a time and
         // grow the display as we author custom notes for each.
         showOnly: ["headless horsman"],
 
-        // Per-key panel overrides. `hideName` suppresses the panel title,
-        // `note` shows a custom line in place of the auto description,
-        // `pixels` overrides the pixel count.
+        // Per-key panel overrides. All fields optional:
+        //   hideName: suppress the panel title AND category chip
+        //   note:     custom line shown in place of the auto description
+        //   pixels:   override the auto pixel count
+        //   size:     override the auto-derived "W' × H'" size string
+        //   subs:     replace the raw xLights submodel list with a curated
+        //             breakdown, e.g. [{ label: "Rider", pixels: 174 }, …]
         overrides: {
             "headless horsman": {
-                hideName: true,
-                note: "This prop is 8' tall and 8' wide!"
+                subs: [
+                    { label: "Rider", pixels: 174 },
+                    { label: "Horse", pixels: 241 }
+                ]
             }
         },
 
