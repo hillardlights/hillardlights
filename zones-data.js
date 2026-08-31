@@ -62,7 +62,8 @@ window.HILLARD_ZONES = {
             "spider web",
             "spider",
             "catcus",
-            "Gothic-Arch"
+            "Gothic-Arch",
+            "gothic-gate"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -107,6 +108,15 @@ window.HILLARD_ZONES = {
                     "Four pumpkin heads with animated mouths that split the vocal parts each song — lead takes the melody, girl and backup handle harmonies, and grumpy sings low.",
                 match: ["^pumpkin - (lead|girl|backup|grumpy)$"],
                 px: 44, py: 50
+            },
+            {
+                key: "gothic-gate",
+                label: "Gothic Gate",
+                cat:   "Gate Matrix",
+                description:
+                    "Twin pixel-matrix gates flanking the gothic arch — vertical sweeps and full-gate patterns synced to the beat.",
+                match: ["^Gate (Left|Right)$"],
+                px: 67, py: 63
             },
             {
                 key: "roofline",
