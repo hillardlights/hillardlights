@@ -207,7 +207,7 @@ window.HILLARD_ZONES = {
             "matrix - column top":            { px: 48, py: 26 },
             "matrix - column - bottom":       { px: 48, py: 40 },
 
-            "tombstone-skull":                { px: 15, py: 68 },
+            "tombstone-skull":                { px: 17, py: 66 },
             "tombstone-rip":                  { px: 10, py: 72 },
             "rosa tomb":                      { px: 43, py: 71 },
             "triune tomb":                    { px: 52, py: 71 }
