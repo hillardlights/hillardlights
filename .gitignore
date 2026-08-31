@@ -16,3 +16,8 @@ Desktop.ini
 .exif-*
 .gallery-snippet.txt
 .server.log
+
+# Layout preview scratch renders (tools/preview_dots.js output)
+tools/_preview-*.png
+tools/_strip-*.png
+tools/_dots.json

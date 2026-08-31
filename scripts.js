@@ -606,6 +606,8 @@
                     description: agg.description || matched[0].description,
                     cx: sumX / w,
                     cy: sumY / w,
+                    px: agg.px,   // optional manual override in image %
+                    py: agg.py,
                     count: totalProps,
                     pixels: totalPixels,
                     members: memberNames,
@@ -618,8 +620,12 @@
             }
 
             // Everything not aggregated → one dot per auto-group
+            const positions = cfg.positions || {};
+            const hidden    = new Set(cfg.hide || []);
             for (const g of data.groups) {
                 if (!remaining.has(g.key)) continue;
+                if (hidden.has(g.key)) continue;
+                const pos = positions[g.key];
                 dots.push({
                     key: g.key,
                     label: g.label,
@@ -627,6 +633,8 @@
                     description: g.description,
                     cx: g.cx,
                     cy: g.cy,
+                    px: pos && pos.px,
+                    py: pos && pos.py,
                     count: g.count,
                     pixels: pixelsOfGroup(g, data),
                     members: g.members,
@@ -655,17 +663,27 @@
             const b = data.bounds;
             const spanX = b.maxX - b.minX;
             const spanY = b.maxY - b.minY;
-            const padX = cfg.padX || 0;
-            const padY = cfg.padY || 0;
-            const usableX = 100 - 2 * padX;
-            const usableY = 100 - 2 * padY;
+            // padX/padY are symmetric shorthand; padLeft/padRight/padTop/padBottom
+            // override per-edge for images whose crop isn't centered.
+            const padLeft   = cfg.padLeft   != null ? cfg.padLeft   : (cfg.padX || 0);
+            const padRight  = cfg.padRight  != null ? cfg.padRight  : (cfg.padX || 0);
+            const padTop    = cfg.padTop    != null ? cfg.padTop    : (cfg.padY || 0);
+            const padBottom = cfg.padBottom != null ? cfg.padBottom : (cfg.padY || 0);
+            const usableX = 100 - padLeft - padRight;
+            const usableY = 100 - padTop  - padBottom;
 
             currentDots = computeDots(season);
 
             for (const d of currentDots) {
-                const pctX = padX + ((d.cx - b.minX) / spanX) * usableX;
+                // Manual (px, py) in image % wins; fall back to the auto-mapping
+                // from xLights world coords into the padded viewport.
+                const pctX = (d.px != null)
+                    ? d.px
+                    : padLeft + ((d.cx - b.minX) / spanX) * usableX;
                 // xLights Y is up → SVG y is down: flip.
-                const pctY = padY + ((b.maxY - d.cy) / spanY) * usableY;
+                const pctY = (d.py != null)
+                    ? d.py
+                    : padTop  + ((b.maxY - d.cy) / spanY) * usableY;
                 d._px = pctX;
                 d._py = pctY;
 
