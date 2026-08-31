@@ -215,12 +215,12 @@ window.HILLARD_ZONES = {
             },
             {
                 key: "dmx-floods",
-                label: "DMX Wall Floods",
+                label: "Flood Lights",
                 cat:   "DMX Flood",
                 description:
                     "DMX-controlled floods used for choreographed wall washes and color chases during songs.",
                 match: ["^dmx_flood"],
-                px: 48, py: 42
+                px: 26, py: 42
             },
             {
                 key: "philips-hue",
