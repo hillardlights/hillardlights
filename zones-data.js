@@ -65,7 +65,8 @@ window.HILLARD_ZONES = {
             "Gothic-Arch",
             "gothic-gate",
             "lamppost",
-            "ghosts"
+            "ghosts",
+            "bat-tree"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -98,6 +99,11 @@ window.HILLARD_ZONES = {
                 // Web is actually on the right side of the yard, not
                 // "center-yard" as the auto description claims.
                 note: "Radial pixel web on the right side of the yard. Concentric rings alternate even/odd for ripple, chase, and pulse effects on beat drops."
+            },
+            "bat-tree": {
+                // Auto description said "twinkle and flap"; these are
+                // static perched bats (unlike the flying bats on the roof).
+                note: "16 static bats perched throughout the spooky tree — pixel-lit for twinkle and per-bat color washes. Unlike the roof flying bats, these don't move."
             }
         },
 
