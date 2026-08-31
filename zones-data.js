@@ -63,7 +63,8 @@ window.HILLARD_ZONES = {
             "spider",
             "catcus",
             "Gothic-Arch",
-            "gothic-gate"
+            "gothic-gate",
+            "lamppost"
         ],
 
         // Per-key panel overrides. All fields optional:
