@@ -187,7 +187,7 @@ window.HILLARD_ZONES = {
             "Gate Left":                      { px: 43, py: 55 },
             "Gate Right":                     { px: 57, py: 55 },
 
-            "spider web":                     { px: 68, py: 65 },
+            "spider web":                     { px: 75, py: 65 },
             "spider":                         { px: 85, py: 76 },
             "catcus":                         { px: 93, py: 68 },
 
