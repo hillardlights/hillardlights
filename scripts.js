@@ -430,6 +430,12 @@
         if (data.socials.tiktok) {
             $("#social-tiktok").href = data.socials.tiktok;
         }
+        if (data.socials.instagram) {
+            $("#social-instagram").href = data.socials.instagram;
+        }
+        if (data.socials.facebook) {
+            $("#social-facebook").href = data.socials.facebook;
+        }
     }
 
     $("#year").textContent = new Date().getFullYear();

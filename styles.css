@@ -1693,8 +1693,10 @@ a { color: inherit; }
     color: var(--muted);
 }
 
-.social-btn.youtube svg { color: #ff0033; }
-.social-btn.tiktok  svg { color: var(--accent-3); }
+.social-btn.youtube   svg { color: #ff0033; }
+.social-btn.tiktok    svg { color: var(--accent-3); }
+.social-btn.instagram svg { color: #e1306c; }
+.social-btn.facebook  svg { color: #1877f2; }
 
 /* ------------------------------------------------------------
    Footer

@@ -405,7 +405,9 @@ window.HILLARD = {
   // SOCIAL LINKS
   // ============================================================
   socials: {
-    youtube: "https://www.youtube.com/@hillardlights",
-    tiktok:  "https://www.tiktok.com/@hillardlights"
+    youtube:   "https://www.youtube.com/@hillardlights",
+    tiktok:    "https://www.tiktok.com/@hillardlights",
+    instagram: "https://www.instagram.com/hillardlights/",
+    facebook:  "https://www.facebook.com/hillardlights/"
   }
 };
