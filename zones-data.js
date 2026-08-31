@@ -58,7 +58,8 @@ window.HILLARD_ZONES = {
             "tombstone-skull",
             "tombstone-rip",
             "rosa tomb",
-            "triune tomb"
+            "triune tomb",
+            "spider web"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -86,6 +87,11 @@ window.HILLARD_ZONES = {
                 // Auto-generated description mis-attributes bat sub-models;
                 // override with something accurate.
                 note: "Four ornate rosa tombs — rosette detailing with per-tomb pixel animation."
+            },
+            "spider web": {
+                // Web is actually on the right side of the yard, not
+                // "center-yard" as the auto description claims.
+                note: "Radial pixel web on the right side of the yard. Concentric rings alternate even/odd for ripple, chase, and pulse effects on beat drops."
             }
         },
 
