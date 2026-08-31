@@ -69,7 +69,8 @@ window.HILLARD_ZONES = {
             "bat-tree",
             "bat - flying - large",
             "truss-bats",
-            "MH"
+            "MH",
+            "matrix-truss"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -156,6 +157,15 @@ window.HILLARD_ZONES = {
                     "Four large flying bats mounted on the front truss — two on each side, with independently animated wings.",
                 match: ["^bat - flying - truss - (left|right)$"],
                 px: 49, py: 60
+            },
+            {
+                key: "matrix-truss",
+                label: "Matrix Truss",
+                cat:   "Matrix Column",
+                description:
+                    "Rectangular stage-truss frame with 1-inch spacing pixels on a grid. Runs text scrolls, VU meters, and pattern effects across all four sides.",
+                match: ["^matrix - column"],
+                px: 48, py: 33
             },
             {
                 key: "roofline",
