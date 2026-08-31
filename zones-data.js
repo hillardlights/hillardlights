@@ -220,7 +220,7 @@ window.HILLARD_ZONES = {
                 description:
                     "DMX-controlled floods used for choreographed wall washes and color chases during songs.",
                 match: ["^dmx_flood"],
-                px: 26, py: 42
+                px: 31, py: 42
             },
             {
                 key: "philips-hue",
