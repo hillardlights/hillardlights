@@ -61,7 +61,8 @@ window.HILLARD_ZONES = {
             "triune tomb",
             "spider web",
             "spider",
-            "catcus"
+            "catcus",
+            "Gothic-Arch"
         ],
 
         // Per-key panel overrides. All fields optional:
