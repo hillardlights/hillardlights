@@ -191,7 +191,7 @@ window.HILLARD_ZONES = {
 
             "spider web":                     { px: 75, py: 65 },
             "spider":                         { px: 72, py: 78 },
-            "catcus":                         { px: 89, py: 82 },
+            "catcus":                         { px: 85, py: 82 },
 
             "bat - flying - large":           { px: 85, py: 22 },
             "bat - flying - truss - left":    { px: 42, py: 20 },
