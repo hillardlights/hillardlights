@@ -51,7 +51,7 @@ window.HILLARD_ZONES = {
         // Whitelist mode — only these group keys render. Everything else
         // is skipped so we can spotlight one or two props at a time and
         // grow the display as we author custom notes for each.
-        showOnly: ["headless horsman", "pumpkin arch"],
+        showOnly: ["headless horsman", "pumpkin arch", "singing-pumpkins"],
 
         // Per-key panel overrides. All fields optional:
         //   hideName: suppress the panel title AND category chip
@@ -77,6 +77,15 @@ window.HILLARD_ZONES = {
         },
 
         aggregate: [
+            {
+                key: "singing-pumpkins",
+                label: "Singing Pumpkins",
+                cat:   "Singing Pumpkin",
+                description:
+                    "Four pumpkin heads with animated mouths that split the vocal parts each song — lead takes the melody, girl and backup handle harmonies, and grumpy sings low.",
+                match: ["^pumpkin - (lead|girl|backup|grumpy)$"],
+                px: 47, py: 44
+            },
             {
                 key: "roofline",
                 label: "Roofline",
