@@ -192,7 +192,7 @@ window.HILLARD_ZONES = {
             "pumpkin arch":                   { px: 58, py: 65 },
 
             "Gothic-Arch":                    { px: 65, py: 52 },
-            "lamppost":                       { px: 55, py: 56 },
+            "lamppost":                       { px: 63, py: 53 },
             "gothic bush inside left":        { px: 61, py: 65 },
             "gothic bush inside right":       { px: 69, py: 65 },
             "gothic bush outside left":       { px: 57, py: 66 },
