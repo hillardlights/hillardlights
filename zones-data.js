@@ -84,7 +84,7 @@ window.HILLARD_ZONES = {
                 description:
                     "Four pumpkin heads with animated mouths that split the vocal parts each song — lead takes the melody, girl and backup handle harmonies, and grumpy sings low.",
                 match: ["^pumpkin - (lead|girl|backup|grumpy)$"],
-                px: 46, py: 47
+                px: 44, py: 50
             },
             {
                 key: "roofline",

@@ -765,7 +765,7 @@
                 d._py = pctY;
 
                 const g = makeEl("g", { class: "dot-group", "data-key": d.key });
-                const r = d.count > 1 ? 1.7 : 1.2;
+                const r = 0.9;
                 const c = makeEl("circle", {
                     class: "group-dot",
                     cx: pctX, cy: pctY, r,
