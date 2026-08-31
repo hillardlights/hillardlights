@@ -242,7 +242,7 @@ window.HILLARD_ZONES = {
             "headless horsman":               { px: 47, py:  6 },
             "MH":                             { px: 36, py: 17 },
             "steampunk spinner":              { px: 32, py: 45 },
-            "spooky tree":                    { px: 24, py: 40 },
+            "spooky tree":                    { px: 24, py: 42 },
 
             "pumpkin - lead":                 { px: 43, py: 43 },
             "pumpkin - girl":                 { px: 47, py: 43 },
