@@ -219,7 +219,7 @@ window.HILLARD_ZONES = {
         // auto-computed centroid from world coords.
         positions: {
             "headless horsman":               { px: 47, py:  6 },
-            "MH":                             { px: 40, py: 17 },
+            "MH":                             { px: 36, py: 17 },
             "steampunk spinner":              { px: 32, py: 45 },
             "spooky tree":                    { px: 24, py: 40 },
 
