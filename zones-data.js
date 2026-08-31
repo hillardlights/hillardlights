@@ -147,7 +147,7 @@ window.HILLARD_ZONES = {
             "pumpkin - girl":                 { px: 47, py: 43 },
             "pumpkin - backup":               { px: 51, py: 43 },
             "pumpkin - grumpy":               { px: 55, py: 43 },
-            "pumpkin arch":                   { px: 49, py: 42 },
+            "pumpkin arch":                   { px: 58, py: 65 },
 
             "Gothic-Arch":                    { px: 65, py: 62 },
             "lamppost":                       { px: 65, py: 60 },
