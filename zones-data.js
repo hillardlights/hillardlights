@@ -66,7 +66,9 @@ window.HILLARD_ZONES = {
             "gothic-gate",
             "lamppost",
             "ghosts",
-            "bat-tree"
+            "bat-tree",
+            "bat - flying - large",
+            "truss-bats"
         ],
 
         // Per-key panel overrides. All fields optional:
@@ -104,6 +106,13 @@ window.HILLARD_ZONES = {
                 // Auto description said "twinkle and flap"; these are
                 // static perched bats (unlike the flying bats on the roof).
                 note: "16 static bats perched throughout the spooky tree — pixel-lit for twinkle and per-bat color washes. Unlike the roof flying bats, these don't move."
+            },
+            "bat - flying - large": {
+                // Auto label is "Roof Flying Bats"; auto description
+                // mentions truss which is actually the separate truss-bats
+                // group.
+                label: "Large Flying Bats",
+                note: "12 large flying bats mounted around the roof with independently animated wings."
             }
         },
 
@@ -134,6 +143,15 @@ window.HILLARD_ZONES = {
                     "24 animated ghost silhouettes flanking the upstairs windows — eyes and mouths animate independently per ghost.",
                 match: ["^ghost - (loft|paige) - (upper|lower)$"],
                 px: 62, py: 22
+            },
+            {
+                key: "truss-bats",
+                label: "Truss Flying Bats",
+                cat:   "Flying Bat",
+                description:
+                    "Four large flying bats mounted on the front truss — two on each side, with independently animated wings.",
+                match: ["^bat - flying - truss - (left|right)$"],
+                px: 49, py: 20
             },
             {
                 key: "roofline",

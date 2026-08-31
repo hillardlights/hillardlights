@@ -619,6 +619,7 @@
             function applyOverride(dot, key) {
                 const o = overrides[key];
                 if (!o) return dot;
+                if (o.label != null)    dot.label    = o.label;
                 if (o.note != null)     dot.note     = o.note;
                 if (o.hideName != null) dot.hideName = !!o.hideName;
                 if (o.pixels != null)   dot.pixels   = o.pixels;
