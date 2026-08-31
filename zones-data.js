@@ -60,7 +60,8 @@ window.HILLARD_ZONES = {
             "rosa tomb",
             "triune tomb",
             "spider web",
-            "spider"
+            "spider",
+            "catcus"
         ],
 
         // Per-key panel overrides. All fields optional:
