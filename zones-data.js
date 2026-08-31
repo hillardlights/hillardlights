@@ -71,6 +71,7 @@ window.HILLARD_ZONES = {
                 // xLights reports 0 pixels because Arches models are
                 // string-based; the real count is one puck per carved face.
                 pixels: 19,
+                size: "7.5' tall",
                 note: "Home Depot arch with the faces carved out. Diffused with photographer lighting sheets and lit by a puck light per face — every pumpkin can go its own color."
             }
         },
