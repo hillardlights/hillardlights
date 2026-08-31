@@ -68,7 +68,8 @@ window.HILLARD_ZONES = {
             "ghosts",
             "bat-tree",
             "bat - flying - large",
-            "truss-bats"
+            "truss-bats",
+            "MH"
         ],
 
         // Per-key panel overrides. All fields optional:
