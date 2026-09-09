@@ -35,10 +35,14 @@ window.HILLARD = {
   },
 
   // Show a big banner near the top with news / important info.
-  // Set active: false to hide it.
+  // Set active: false to hide it. `text` can be a single string (both
+  // seasons) or a { halloween, christmas } object for per-season copy.
   announcement: {
     active: true,
-    text: "🎃 Halloween 2026 opening night is Sunday, October 11. Tune in to 105.3 FM."
+    text: {
+      halloween: "🎃 Halloween 2026 opening night is Sunday, October 11. Tune in to 105.3 FM.",
+      christmas: "🎄 Christmas 2026 opening night is Tuesday, December 1. Tune in to 105.3 FM."
+    }
   },
 
   // Optional per-season countdown target. Leave a target as "" to hide.

@@ -104,14 +104,26 @@
     }
 
     // --------------------------------------------------------
-    // Announcement
+    // Announcement (supports per-season { halloween, christmas } text or a
+    // single string for both seasons)
     // --------------------------------------------------------
     const announcement = data.announcement;
     const annEl = $("#announcement");
-    if (annEl && announcement && announcement.active && announcement.text) {
-        $("#announcement-text").textContent = announcement.text;
+    function announcementText(season) {
+        if (!announcement || !announcement.text) return "";
+        const t = announcement.text;
+        if (typeof t === "string") return t;
+        return t[season] || t.halloween || t.christmas || "";
+    }
+    function applyAnnouncement(season) {
+        if (!annEl || !announcement || !announcement.active) return;
+        const txt = announcementText(season);
+        if (!txt) { annEl.hidden = true; return; }
+        $("#announcement-text").textContent = txt;
         annEl.hidden = false;
     }
+    applyAnnouncement(currentSeason());
+    onSeasonChange(applyAnnouncement);
 
     // --------------------------------------------------------
     // About

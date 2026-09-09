@@ -915,10 +915,6 @@ a { color: inherit; }
     color: var(--muted);
 }
 
-/* Hide the Halloween-2026 stat strip while the site is in Christmas
-   mode — the numbers are season-specific. */
-[data-theme="christmas"] .stats { display: none; }
-
 @media (max-width: 720px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .stat-cell { padding: 20px 12px; }
