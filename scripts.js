@@ -1005,13 +1005,20 @@
 
         // Section subtitle: real numbers from the xLights export for the
         // current year; a "past year" line when browsing older layouts.
+        // If a season has no `current` year at all (Christmas is a static
+        // gallery), drop the "no prop details" tail — every year is the
+        // same kind of view, so the disclaimer would just add noise.
         const lead = $("#prop-count-lead");
         function updateLead(season) {
             const d = layout[season];
             if (!lead || !d) return;
             if (currentYear && !currentYear.current) {
-                lead.textContent =
-                    `Layout from ${currentYear.year} — past-year snapshot, no prop details.`;
+                const cfg = zonesData[season];
+                const hasCurrentYear = cfg && Array.isArray(cfg.years) &&
+                    cfg.years.some(y => y.current);
+                lead.textContent = hasCurrentYear
+                    ? `Layout from ${currentYear.year} — past-year snapshot, no prop details.`
+                    : `Layout from ${currentYear.year}.`;
                 return;
             }
             const visible = currentDots.length;

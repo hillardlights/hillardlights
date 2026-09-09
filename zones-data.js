@@ -318,6 +318,20 @@ window.HILLARD_ZONES = {
     christmas: {
         image: "images/layouts/christmas.png",
         alt:   "Christmas xLights layout",
+
+        // Year progression. Chips render above the layout so visitors can
+        // flip through past years. No year is marked `current`, so the
+        // dot overlay stays hidden for every Christmas year — Christmas
+        // is a static gallery, not an interactive prop map.
+        years: [
+            { year: 2021, image: "images/layouts/history/christmas-2021.jpg" },
+            { year: 2022, image: "images/layouts/history/christmas-2022.jpg" },
+            { year: 2023, image: "images/layouts/history/christmas-2023.jpg" },
+            { year: 2024, image: "images/layouts/history/christmas-2024.jpg" },
+            { year: 2025, image: "images/layouts/history/christmas-2025.jpg" },
+            { year: 2026, image: "images/layouts/history/christmas-2026.jpg" }
+        ],
+
         padX: 3,
         padY: 3,
         aggregate: [
