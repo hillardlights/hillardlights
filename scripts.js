@@ -249,6 +249,18 @@
 
     // --------------------------------------------------------
     // Countdown (per-season; re-renders on toggle)
+    //
+    // Smart modes — on show days, the grid switches from the static
+    // "days until opening night" clock to a live one:
+    //
+    //   LIVE   — a show is running right now.
+    //            Label: "🔴 Live now · Tune in on 105.3 FM"
+    //            Grid:  countdown to when tonight's show ends
+    //   SOON   — a show starts later today.
+    //            Label: "🎃 Tonight's show starts in"
+    //            Grid:  countdown to start time (days cell hidden)
+    //   FUTURE — no show today. Fall through to data.countdown target
+    //            (opening night). Original behavior.
     // --------------------------------------------------------
     const cdEl = $("#countdown");
     let cdInterval = null;
@@ -263,41 +275,117 @@
         return null;
     }
 
+    // Parse "6:30 PM" -> { h: 18, m: 30 }
+    function parseTime12h(str) {
+        if (!str) return null;
+        const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(str).trim());
+        if (!m) return null;
+        let h = parseInt(m[1], 10);
+        const min = parseInt(m[2], 10);
+        if (/pm/i.test(m[3]) && h !== 12) h += 12;
+        if (/am/i.test(m[3]) && h === 12) h = 0;
+        return { h, m: min };
+    }
+
+    // Parse "6:30 PM – 9:00 PM" -> { start, end }. Handles em/en/hyphen.
+    function parseTimeRange(str) {
+        if (!str) return null;
+        const parts = String(str).split(/\s*[–—-]\s*/);
+        return {
+            start: parseTime12h(parts[0]),
+            end:   parts[1] ? parseTime12h(parts[1]) : null
+        };
+    }
+
+    // Find the event covering "now" for this season, if any. Returns
+    // { event, mode: "LIVE"|"SOON", startAt, endAt } or null.
+    function findRelevantEvent(season, now) {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        for (const ev of events) {
+            if (ev.season !== season) continue;
+            if (ev.type === "closed") continue;
+            if (!ev.time) continue;
+            const endRange = ev._dateEnd || ev._date;
+            if (today < ev._date || today > endRange) continue;
+
+            const range = parseTimeRange(ev.time);
+            if (!range || !range.start) continue;
+
+            const startAt = new Date(today);
+            startAt.setHours(range.start.h, range.start.m, 0, 0);
+            const endAt = range.end ? new Date(today) : null;
+            if (endAt) endAt.setHours(range.end.h, range.end.m, 0, 0);
+
+            if (endAt && now >= startAt && now <= endAt) {
+                return { event: ev, mode: "LIVE", startAt, endAt };
+            }
+            if (now < startAt) {
+                return { event: ev, mode: "SOON", startAt, endAt };
+            }
+            // Show ended earlier today — keep looking (nothing else will match today
+            // in practice, but be defensive).
+        }
+        return null;
+    }
+
+    function writeClock(diff) {
+        if (diff < 0) diff = 0;
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff / 3600000) % 24);
+        const m = Math.floor((diff / 60000) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        $("#cd-days").textContent = d;
+        $("#cd-hours").textContent = String(h).padStart(2, "0");
+        $("#cd-mins").textContent = String(m).padStart(2, "0");
+        $("#cd-secs").textContent = String(s).padStart(2, "0");
+        // Hide the days cell whenever it's zero so the grid doesn't lead
+        // with a giant "0". Toggled every tick; cheap.
+        cdEl.classList.toggle("compact", d === 0);
+    }
+
     function applyCountdown(season) {
         if (!cdEl) return;
         if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
 
-        const countdown = pickCountdown(season);
-        if (!countdown || !countdown.target) { cdEl.hidden = true; return; }
-
-        const target = new Date(countdown.target);
-        if (isNaN(target.getTime()) || target <= new Date()) { cdEl.hidden = true; return; }
-
-        cdEl.hidden = false;
-        $("#countdown-label").textContent = countdown.label || "Coming up";
+        const emoji = season === "christmas" ? "🎄" : "🎃";
+        const fallback = pickCountdown(season);
+        const fallbackTarget = fallback && fallback.target ? new Date(fallback.target) : null;
+        const fallbackLabel = (fallback && fallback.label) || "Coming up";
 
         const tick = () => {
-            const diff = target - new Date();
-            if (diff <= 0) {
-                cdEl.hidden = true;
-                if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
+            const now = new Date();
+            const rel = findRelevantEvent(season, now);
+
+            if (rel && rel.mode === "LIVE") {
+                cdEl.hidden = false;
+                cdEl.classList.add("live");
+                $("#countdown-label").textContent = "Live now · Tune in on 105.3 FM";
+                writeClock(rel.endAt - now);
                 return;
             }
-            const d = Math.floor(diff / 86400000);
-            const h = Math.floor((diff / 3600000) % 24);
-            const m = Math.floor((diff / 60000) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-            $("#cd-days").textContent = d;
-            $("#cd-hours").textContent = String(h).padStart(2, "0");
-            $("#cd-mins").textContent = String(m).padStart(2, "0");
-            $("#cd-secs").textContent = String(s).padStart(2, "0");
+
+            cdEl.classList.remove("live");
+
+            if (rel && rel.mode === "SOON") {
+                cdEl.hidden = false;
+                $("#countdown-label").textContent = `${emoji} Tonight's show starts in`;
+                writeClock(rel.startAt - now);
+                return;
+            }
+
+            // FUTURE — fall through to configured opening night target.
+            if (!fallbackTarget || isNaN(fallbackTarget.getTime()) || fallbackTarget <= now) {
+                cdEl.hidden = true;
+                return;
+            }
+            cdEl.hidden = false;
+            $("#countdown-label").textContent = fallbackLabel;
+            writeClock(fallbackTarget - now);
         };
+
         tick();
         cdInterval = setInterval(tick, 1000);
     }
-
-    applyCountdown(currentSeason());
-    onSeasonChange(applyCountdown);
 
     // --------------------------------------------------------
     // Schedule
@@ -316,6 +404,11 @@
             _dateEnd: e.dateEnd ? parseDateLocal(e.dateEnd) : null
         }))
         .sort((a, b) => a._date - b._date);
+
+    // Kick off the countdown now that `events` is populated; it reads
+    // them via findRelevantEvent to detect a live/upcoming show.
+    applyCountdown(currentSeason());
+    onSeasonChange(applyCountdown);
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);

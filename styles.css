@@ -731,6 +731,48 @@ a { color: inherit; }
     margin-top: 4px;
 }
 
+/* Smart countdown states:
+   .compact — hide the "days" cell when it's zero (same-day show)
+   .live    — a show is running right now; label glows red */
+.hero-countdown.compact .hero-countdown-grid > div:first-child {
+    display: none;
+}
+
+.hero-countdown.live {
+    border-color: rgba(220, 20, 40, .55);
+    box-shadow: 0 0 40px rgba(220, 20, 40, .18);
+}
+
+.hero-countdown.live .hero-countdown-label {
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .12em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.hero-countdown.live .hero-countdown-label::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ff2f4a;
+    box-shadow: 0 0 0 0 rgba(255, 47, 74, .8);
+    animation: liveCountdownPulse 1.4s ease-out infinite;
+}
+
+@keyframes liveCountdownPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 47, 74, .8); }
+    70%  { box-shadow: 0 0 0 8px rgba(255, 47, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 47, 74, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-countdown.live .hero-countdown-label::before { animation: none; }
+}
+
 /* Scroll hint */
 /* ------------------------------------------------------------
    Announcement
