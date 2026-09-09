@@ -30,7 +30,7 @@ window.HILLARD = {
   heroVideo: "",
   // Optional per-season override. If set, wins over heroVideo above.
   heroVideoBySeason: {
-    halloween: "",
+    halloween: "videos/halloween-teaser.mp4",
     christmas: ""
   },
 
