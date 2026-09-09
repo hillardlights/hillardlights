@@ -126,6 +126,118 @@
     onSeasonChange(applyAnnouncement);
 
     // --------------------------------------------------------
+    // Live "Now Playing" bar — polls Remote Falcon's viewer GraphQL
+    // for `playingNow`. Hides itself when the show is off (empty
+    // string) or the network is unreachable. Only polls while the tab
+    // is visible so a backgrounded phone tab isn't hitting RF forever.
+    // --------------------------------------------------------
+    (function initNowPlaying() {
+        const rf = data.remoteFalcon;
+        const bar = $("#now-playing");
+        if (!bar || !rf || !rf.enabled || !rf.baseUrl || !rf.subdomain) return;
+
+        const songEl   = $("#now-playing-song");
+        const artistEl = $("#now-playing-artist");
+        const ctaEl    = $("#now-playing-cta");
+        if (ctaEl && rf.viewerUrl) ctaEl.setAttribute("href", rf.viewerUrl);
+
+        const pollMs = Math.max(2000, rf.pollMs || 5000);
+        const query = "query GetShow($s: String!) { getShow(showSubdomain: $s) { " +
+            "playingNow playingNowSequence { displayName artist } } }";
+
+        // Season window: Halloween runs through Nov 1, Christmas Nov 2 – Jan 1.
+        // The LIVE NOW card only shows when the visitor's current theme matches
+        // the calendar window — no Halloween song appears if you're browsing
+        // Christmas mode, or vice versa.
+        function activeShowSeason() {
+            const d = new Date();
+            const m = d.getMonth(); // 0-based; Nov=10, Dec=11, Jan=0
+            const day = d.getDate();
+            if (m === 10 && day >= 2) return "christmas"; // Nov 2–30
+            if (m === 11) return "christmas";              // Dec 1–31
+            if (m === 0 && day === 1) return "christmas";  // Jan 1
+            return "halloween";                             // rest of the year
+        }
+
+        let timer = null;
+        let inflight = null;
+        let lastSong = null;
+        let lastShow = null; // cache last RF payload for re-render on season toggle
+
+        function stop() {
+            if (timer) { clearTimeout(timer); timer = null; }
+            if (inflight) { inflight.abort(); inflight = null; }
+        }
+
+        function schedule(ms) {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(tick, ms);
+        }
+
+        async function tick() {
+            timer = null;
+            if (document.visibilityState !== "visible") return;
+            const ac = new AbortController();
+            inflight = ac;
+            try {
+                const res = await fetch(rf.baseUrl + "/graphql", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ query, variables: { s: rf.subdomain } }),
+                    signal: ac.signal
+                });
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const body = await res.json();
+                lastShow = body && body.data && body.data.getShow;
+                render(lastShow);
+            } catch (err) {
+                // Silent failure — hide the bar, try again later.
+                lastShow = null;
+                hide();
+            } finally {
+                inflight = null;
+                schedule(pollMs);
+            }
+        }
+
+        function hide() {
+            bar.hidden = true;
+            lastSong = null;
+        }
+
+        function render(show) {
+            if (!show) return hide();
+            // Gate on calendar season — don't surface a Halloween song while
+            // the visitor is browsing Christmas mode (or vice versa).
+            if (currentSeason() !== activeShowSeason()) return hide();
+            const raw = (show.playingNow || "").trim();
+            if (!raw) return hide();
+            const seq = show.playingNowSequence || {};
+            const song = (seq.displayName || raw).trim();
+            const artist = (seq.artist || "").trim();
+            if (song !== lastSong) {
+                songEl.textContent = song;
+                artistEl.textContent = artist;
+                lastSong = song;
+            } else if (artistEl.textContent !== artist) {
+                artistEl.textContent = artist;
+            }
+            bar.hidden = false;
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") schedule(0);
+            else stop();
+        });
+
+        // Season toggle: re-run render against the cached RF payload so the
+        // card hides/shows immediately instead of waiting for the next poll.
+        onSeasonChange(() => render(lastShow));
+
+        tick();
+    })();
+
+    // --------------------------------------------------------
     // About
     // --------------------------------------------------------
     const aboutEl = $("#about-text");

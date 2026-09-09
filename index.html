@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Bebas+Neue&family=Creepster&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css?v=68">
+    <link rel="stylesheet" href="styles.css?v=72">
 
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%83%3C/text%3E%3C/svg%3E">
 </head>
@@ -143,6 +143,34 @@
     <div class="announcement-inner">
         <span class="announcement-icon">📣</span>
         <p id="announcement-text"></p>
+    </div>
+</section>
+
+<!-- Live "Now Playing" section (Remote Falcon) -->
+<section id="now-playing" class="section now-playing" hidden aria-live="polite">
+    <div class="now-playing-card">
+        <div class="now-playing-header">
+            <span class="now-playing-live">
+                <span class="now-playing-dot" aria-hidden="true"></span>
+                LIVE&nbsp;NOW
+            </span>
+            <div class="now-playing-eq" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span class="now-playing-eyebrow">Playing on 105.3&nbsp;FM</span>
+        </div>
+
+        <h2 class="now-playing-song" id="now-playing-song"></h2>
+        <p class="now-playing-artist" id="now-playing-artist"></p>
+
+        <div class="now-playing-actions">
+            <a class="now-playing-cta" id="now-playing-cta"
+               href="https://hillardlightshows.remotefalcon.com"
+               target="_blank" rel="noopener noreferrer">
+                🎶 Request the next song
+            </a>
+            <span class="now-playing-hint">Park nearby &middot; tune your radio &middot; enjoy the show</span>
+        </div>
     </div>
 </section>
 
@@ -365,10 +393,10 @@
     </div>
 </footer>
 
-<script src="data.js?v=68"></script>
-<script src="layout-data.js?v=68"></script>
-<script src="zones-data.js?v=68"></script>
-<script src="scripts.js?v=68"></script>
+<script src="data.js?v=72"></script>
+<script src="layout-data.js?v=72"></script>
+<script src="zones-data.js?v=72"></script>
+<script src="scripts.js?v=72"></script>
 
 </body>
 </html>

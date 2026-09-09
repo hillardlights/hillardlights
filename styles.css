@@ -712,7 +712,7 @@ a { color: inherit; }
    ------------------------------------------------------------ */
 .announcement {
     padding: 0 20px;
-    margin: -40px auto 40px;
+    margin: 20px auto 40px;
     max-width: var(--max);
     position: relative;
     z-index: 2;
@@ -738,6 +738,189 @@ a { color: inherit; }
     margin: 0;
     font-weight: 500;
     font-size: 15px;
+}
+
+/* ------------------------------------------------------------
+   Live "Now Playing" section — full-width hero-adjacent card that
+   only appears while Remote Falcon reports a live song.
+   ------------------------------------------------------------ */
+.section.now-playing {
+    padding: 20px 20px 40px;
+}
+
+.now-playing-card {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 40px 32px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(220, 20, 40, .22), rgba(var(--accent-2-rgb), .18));
+    border: 1px solid rgba(220, 20, 40, .45);
+    border-radius: calc(var(--radius) + 4px);
+    backdrop-filter: blur(12px);
+    box-shadow:
+        0 0 60px rgba(220, 20, 40, .22),
+        0 8px 40px rgba(0, 0, 0, .35);
+    position: relative;
+    overflow: hidden;
+    animation: nowPlayingGlow 3.2s ease-in-out infinite alternate;
+}
+
+/* Soft sweeping shine to make it feel actively broadcasting. */
+.now-playing-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% -40%;
+    background: radial-gradient(60% 40% at 50% 0%, rgba(255, 255, 255, .08), transparent 70%);
+    pointer-events: none;
+}
+
+@keyframes nowPlayingGlow {
+    from { box-shadow: 0 0 40px rgba(220, 20, 40, .18), 0 8px 40px rgba(0, 0, 0, .35); }
+    to   { box-shadow: 0 0 80px rgba(220, 20, 40, .32), 0 8px 40px rgba(0, 0, 0, .35); }
+}
+
+.now-playing-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    position: relative;
+}
+
+.now-playing-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff1e3c, #d10020);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px rgba(220, 20, 40, .55);
+}
+
+.now-playing-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, .9);
+    animation: nowPlayingPulse 1.3s ease-out infinite;
+}
+
+@keyframes nowPlayingPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, .9); }
+    70%  { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Animated equalizer bars — the "music is actually playing" cue. */
+.now-playing-eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 22px;
+}
+
+.now-playing-eq span {
+    display: block;
+    width: 4px;
+    background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+    border-radius: 2px;
+    animation: nowPlayingEq 1s ease-in-out infinite;
+    transform-origin: bottom;
+}
+
+.now-playing-eq span:nth-child(1) { height: 60%; animation-delay:  .0s; }
+.now-playing-eq span:nth-child(2) { height: 90%; animation-delay: .15s; }
+.now-playing-eq span:nth-child(3) { height: 50%; animation-delay: .30s; }
+.now-playing-eq span:nth-child(4) { height: 80%; animation-delay: .45s; }
+.now-playing-eq span:nth-child(5) { height: 65%; animation-delay: .60s; }
+
+@keyframes nowPlayingEq {
+    0%, 100% { transform: scaleY(.35); }
+    50%      { transform: scaleY(1);   }
+}
+
+.now-playing-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.now-playing-song {
+    font-family: "Bebas Neue", var(--font-display, inherit);
+    font-size: clamp(40px, 7vw, 72px);
+    line-height: 1.05;
+    margin: 0 0 6px;
+    letter-spacing: .02em;
+    background: linear-gradient(135deg, #fff, var(--accent-1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    word-wrap: break-word;
+}
+
+.now-playing-artist {
+    margin: 0 0 26px;
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--fg);
+    opacity: .85;
+}
+
+.now-playing-artist:empty { display: none; }
+
+.now-playing-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.now-playing-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: .02em;
+    box-shadow: 0 8px 24px rgba(var(--accent-1-rgb), .35);
+    transition: transform .15s, box-shadow .15s;
+}
+
+.now-playing-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(var(--accent-1-rgb), .5);
+}
+
+.now-playing-hint {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: .04em;
+}
+
+@media (max-width: 640px) {
+    .now-playing-card { padding: 26px 20px 24px; }
+    .now-playing-header { gap: 10px; margin-bottom: 16px; }
+    .now-playing-eyebrow { flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .now-playing-dot,
+    .now-playing-eq span,
+    .now-playing-card { animation: none; }
 }
 
 /* ------------------------------------------------------------

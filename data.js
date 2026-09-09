@@ -34,14 +34,26 @@ window.HILLARD = {
     christmas: ""
   },
 
+  // Live "Now Playing" bar powered by Remote Falcon. When the show is
+  // actively running, RF's `playingNow` field is populated by the FPP
+  // plugin; we poll every `pollMs` and hide the bar the moment it's
+  // empty. `viewerUrl` is where the "Request a song" button links.
+  remoteFalcon: {
+    enabled: true,
+    baseUrl: "https://remotefalcon.com/remote-falcon-viewer",
+    subdomain: "hillardlightshows",
+    viewerUrl: "https://hillardlightshows.remotefalcon.com",
+    pollMs: 5000
+  },
+
   // Show a big banner near the top with news / important info.
   // Set active: false to hide it. `text` can be a single string (both
   // seasons) or a { halloween, christmas } object for per-season copy.
   announcement: {
     active: true,
     text: {
-      halloween: "🎃 Halloween 2026 opening night is Sunday, October 11. Tune in to 105.3 FM.",
-      christmas: "🎄 Christmas 2026 opening night is Tuesday, December 1. Tune in to 105.3 FM."
+      halloween: "🎃 Halloween 2026 opening night is Sunday, October 11.",
+      christmas: "🎄 Christmas 2026 opening night is Tuesday, December 1."
     }
   },
 
