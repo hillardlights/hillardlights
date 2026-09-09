@@ -1618,6 +1618,112 @@ a { color: inherit; }
 }
 
 /* ------------------------------------------------------------
+   Visit / Directions — map + parking + etiquette
+   ------------------------------------------------------------ */
+.visit-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 32px;
+    align-items: start;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+@media (max-width: 820px) {
+    .visit-grid { grid-template-columns: 1fr; gap: 20px; }
+}
+
+.visit-map {
+    display: block;
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.visit-map img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: brightness(.95);
+    transition: filter .2s;
+}
+
+.visit-map:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+}
+
+.visit-map:hover img { filter: brightness(1.02); }
+
+.visit-map-cta {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgba(12, 10, 24, .85);
+    border: 1px solid rgba(var(--accent-1-rgb), .5);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    white-space: nowrap;
+}
+
+.visit-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.visit-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px 22px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color .2s, transform .2s;
+}
+
+.visit-card:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
+.visit-card-icon {
+    font-size: 26px;
+    line-height: 1;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.visit-card h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.visit-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.visit-card p strong { color: var(--text); }
+
+/* ------------------------------------------------------------
    Videos
    ------------------------------------------------------------ */
 .videos-grid {
