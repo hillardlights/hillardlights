@@ -31,7 +31,7 @@ window.HILLARD = {
   // Optional per-season override. If set, wins over heroVideo above.
   heroVideoBySeason: {
     halloween: "videos/halloween-teaser.mp4",
-    christmas: ""
+    christmas: "videos/christmas-teaser.mp4"
   },
 
   // Live "Now Playing" bar powered by Remote Falcon. When the show is
