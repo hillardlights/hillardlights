@@ -91,11 +91,43 @@
     const initialSeason = storedSeason || detectSeason();
     applySeason(initialSeason);
 
+    // Season swap with the View Transitions API: the incoming season
+    // is revealed by a circular clip-path that grows out of the toggle
+    // button (or the click point). Falls back to an instant swap in
+    // browsers without support and when reduced motion is preferred.
+    function swapSeason(next, event) {
+        const html = document.documentElement;
+        const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce || typeof document.startViewTransition !== "function") {
+            applySeason(next);
+            return;
+        }
+
+        const src = event && event.currentTarget;
+        const rect = src && src.getBoundingClientRect
+            ? src.getBoundingClientRect()
+            : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const endRadius = Math.hypot(
+            Math.max(x, innerWidth - x),
+            Math.max(y, innerHeight - y)
+        );
+
+        html.style.setProperty("--vt-x", x + "px");
+        html.style.setProperty("--vt-y", y + "px");
+        html.style.setProperty("--vt-r", endRadius + "px");
+        html.classList.add("season-swapping");
+
+        const vt = document.startViewTransition(() => applySeason(next));
+        vt.finished.finally(() => html.classList.remove("season-swapping"));
+    }
+
     const themeToggle = $(".theme-toggle");
     if (themeToggle) {
-        themeToggle.addEventListener("click", () => {
+        themeToggle.addEventListener("click", (e) => {
             const cur = document.documentElement.getAttribute("data-theme");
-            applySeason(cur === "halloween" ? "christmas" : "halloween");
+            swapSeason(cur === "halloween" ? "christmas" : "halloween", e);
         });
     }
 

@@ -2175,3 +2175,27 @@ a { color: inherit; }
     .reveal { opacity: 1; transform: none; transition: none; }
     .hero-glow, .pulse-dot, .string-lights::after { animation: none; }
 }
+
+/* ------------------------------------------------------------
+   View Transitions: season swap
+   The outgoing page snapshot sits underneath; the incoming
+   snapshot is revealed by a circular clip-path that grows out
+   of the theme-toggle button. Coordinates + max radius are set
+   on <html> in JS just before startViewTransition().
+   ------------------------------------------------------------ */
+html.season-swapping::view-transition-old(root) {
+    animation: none;
+    mix-blend-mode: normal;
+    z-index: 1;
+}
+
+html.season-swapping::view-transition-new(root) {
+    animation: seasonReveal 900ms cubic-bezier(.22, 1, .36, 1);
+    mix-blend-mode: normal;
+    z-index: 2;
+}
+
+@keyframes seasonReveal {
+    from { clip-path: circle(0          at var(--vt-x) var(--vt-y)); }
+    to   { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); }
+}
