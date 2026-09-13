@@ -296,6 +296,20 @@ a { color: inherit; }
         linear-gradient(180deg, #04030a 0%, #0b0620 40%, #1a0f2e 100%);
 }
 
+/* WebGL shader canvas — inserted as the first child of .hero-bg by
+   hero-shader.js. When present, it replaces .sky-wash as the base
+   atmospheric layer; the decorative overlays (moon, stars, particles,
+   skyline) draw on top of it. */
+.hero-shader {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+.hero-bg--shader-on .sky-wash { display: none; }
+
 [data-theme="christmas"] .sky-wash {
     background:
         radial-gradient(ellipse 80% 60% at 50% 100%, rgba(var(--accent-1-rgb), 0.15), transparent 70%),
@@ -1653,6 +1667,36 @@ a { color: inherit; }
     margin: 0;
 }
 
+.event-calendar-btn {
+    align-self: flex-start;
+    margin-top: 4px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .2s var(--ease), color .2s var(--ease), background .2s var(--ease), transform .1s var(--ease);
+}
+
+.event-calendar-btn:hover {
+    border-color: var(--accent-1);
+    color: var(--text);
+    background: rgba(var(--accent-1-rgb), .08);
+}
+
+.event-calendar-btn:active {
+    transform: translateY(1px);
+}
+
+.event-calendar-btn:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 2px;
+}
+
 .schedule-empty {
     text-align: center;
     color: var(--muted);
@@ -2174,6 +2218,55 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
     .hero-glow, .pulse-dot, .string-lights::after { animation: none; }
+}
+
+/* ------------------------------------------------------------
+   Scroll-driven animations (native animation-timeline)
+   Progressive enhancement — @supports gates the block so browsers
+   without support just get the static layout.
+   ------------------------------------------------------------ */
+@supports (animation-timeline: view()) {
+    .hero { view-timeline-name: --hero-exit; }
+
+    /* Background + video zoom in and fade as the hero scrolls off,
+       so the world feels like it's receding behind you. */
+    .hero-bg, .hero-video {
+        animation: heroBgRecede linear both;
+        animation-timeline: --hero-exit;
+        animation-range: exit 0% exit 100%;
+    }
+    @keyframes heroBgRecede {
+        to { transform: scale(1.12); opacity: .25; }
+    }
+
+    /* Hero copy fades gently in the last stretch of the exit so the
+       handoff to the next section reads as intentional. */
+    .hero-inner {
+        animation: heroCopyFade linear both;
+        animation-timeline: --hero-exit;
+        animation-range: exit 20% exit 100%;
+    }
+    @keyframes heroCopyFade {
+        to { opacity: .3; }
+    }
+
+    /* Stat cells rise into view as they cross the viewport — feels
+       alive instead of a one-shot IntersectionObserver flip. */
+    .stat-cell {
+        animation: statEntry linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 25%;
+    }
+    @keyframes statEntry {
+        from { transform: translateY(30px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    @supports (animation-timeline: view()) {
+        .hero-bg, .hero-video, .hero-inner, .stat-cell { animation: none; }
+    }
 }
 
 /* ------------------------------------------------------------

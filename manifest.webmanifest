@@ -1,0 +1,16 @@
+{
+  "name": "Hillard Lights",
+  "short_name": "Hillard Lights",
+  "description": "Halloween and Christmas residential light show at 758 W Yellow Wood Ave, Queen Creek AZ. Tune to 105.3 FM.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0a0714",
+  "background_color": "#0a0714",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

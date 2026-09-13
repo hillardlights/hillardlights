@@ -228,7 +228,10 @@
                 hide();
             } finally {
                 inflight = null;
-                schedule(pollMs);
+                // Only reschedule if the tab is still visible — a background
+                // → foreground → background flip during the fetch would
+                // otherwise leave a pending tick that fires on a hidden tab.
+                if (document.visibilityState === "visible") schedule(pollMs);
             }
         }
 
@@ -448,6 +451,139 @@
     // An event is "upcoming" if its LAST day (dateEnd or date) is today or later
     const upcoming = events.filter(e => (e._dateEnd || e._date) >= now);
 
+    // --------------------------------------------------------
+    // Add-to-calendar (.ics)
+    // Phoenix, AZ doesn't observe DST — we always shift the local
+    // time by exactly +7h to reach UTC, no VTIMEZONE block needed.
+    // --------------------------------------------------------
+    const AZ_UTC_OFFSET_MS = 7 * 60 * 60 * 1000;
+    const ICS_LOCATION = "758 W Yellow Wood Ave, Queen Creek, AZ";
+    const ICS_URL      = "https://hillardlights.com/";
+
+    function parseTimeRange(str) {
+        if (!str) return null;
+        // "6:30 PM – 9:00 PM" (en-dash) or "6:30 PM - 9:00 PM"
+        const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–\-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+        if (!m) return null;
+        const to24 = (h, ap) => {
+            h = +h;
+            if (/PM/i.test(ap) && h !== 12) h += 12;
+            if (/AM/i.test(ap) && h === 12) h = 0;
+            return h;
+        };
+        return {
+            startH: to24(m[1], m[3]), startM: +m[2],
+            endH:   to24(m[4], m[6]), endM:   +m[5],
+        };
+    }
+    function icsEscape(s) {
+        return String(s || "").replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, "\\n");
+    }
+    function fmtIcsUtc(d) {
+        return d.toISOString().replace(/[-:]|\.\d{3}/g, "");
+    }
+    function fmtIcsDate(d) {
+        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+    }
+    function slugify(s) {
+        return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    }
+
+    function buildIcs(ev) {
+        const start = parseDateLocal(ev.date);
+        const end   = ev.dateEnd ? parseDateLocal(ev.dateEnd) : start;
+        const times = parseTimeRange(ev.time);
+        const dayCount = Math.round((end - start) / 86400000) + 1;
+
+        const lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Hillard Lights//Show Schedule//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "BEGIN:VEVENT",
+            `UID:${ev.date}-${slugify(ev.title)}-${ev.season}@hillardlights.com`,
+            `DTSTAMP:${fmtIcsUtc(new Date())}`,
+        ];
+
+        if (times) {
+            const y = start.getFullYear(), mo = start.getMonth(), da = start.getDate();
+            const startUtc = new Date(Date.UTC(y, mo, da, times.startH, times.startM) + AZ_UTC_OFFSET_MS);
+            const endUtc   = new Date(Date.UTC(y, mo, da, times.endH,   times.endM  ) + AZ_UTC_OFFSET_MS);
+            lines.push(`DTSTART:${fmtIcsUtc(startUtc)}`);
+            lines.push(`DTEND:${fmtIcsUtc(endUtc)}`);
+            if (dayCount > 1) lines.push(`RRULE:FREQ=DAILY;COUNT=${dayCount}`);
+        } else {
+            // All-day. DTEND is exclusive per RFC 5545.
+            const dayAfter = new Date(end);
+            dayAfter.setDate(dayAfter.getDate() + 1);
+            lines.push(`DTSTART;VALUE=DATE:${fmtIcsDate(start)}`);
+            lines.push(`DTEND;VALUE=DATE:${fmtIcsDate(dayAfter)}`);
+        }
+
+        const emoji = ev.season === "christmas" ? "🎄" : "🎃";
+        const summary = `${emoji} Hillard Lights — ${ev.title}`;
+        const descParts = [
+            ev.subtitle,
+            ev.description,
+            ev.fm ? `Tune to ${ev.fm}.` : null,
+            "Park along Hearn St or N Eliana Dr.",
+            ICS_URL,
+        ].filter(Boolean);
+        lines.push(`SUMMARY:${icsEscape(summary)}`);
+        lines.push(`DESCRIPTION:${icsEscape(descParts.join("\n\n"))}`);
+        lines.push(`LOCATION:${icsEscape(ICS_LOCATION)}`);
+        lines.push(`URL:${ICS_URL}`);
+        lines.push("END:VEVENT");
+        lines.push("END:VCALENDAR");
+
+        return lines.join("\r\n");
+    }
+
+    function downloadIcs(ev) {
+        const ics = buildIcs(ev);
+        const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href = url;
+        a.download = `hillard-lights-${slugify(ev.title)}-${ev.date}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function calendarButton(ev) {
+        if (ev.type === "closed") return "";
+        const attrs = [
+            `data-date="${escapeAttr(ev.date)}"`,
+            ev.dateEnd     ? `data-date-end="${escapeAttr(ev.dateEnd)}"` : "",
+            ev.time        ? `data-time="${escapeAttr(ev.time)}"` : "",
+            `data-title="${escapeAttr(ev.title || "")}"`,
+            ev.subtitle    ? `data-subtitle="${escapeAttr(ev.subtitle)}"` : "",
+            ev.description ? `data-description="${escapeAttr(ev.description)}"` : "",
+            ev.fm          ? `data-fm="${escapeAttr(ev.fm)}"` : "",
+            `data-season="${escapeAttr(ev.season)}"`,
+            ev.type        ? `data-type="${escapeAttr(ev.type)}"` : "",
+        ].filter(Boolean).join(" ");
+        return `<button type="button" class="event-calendar-btn" ${attrs} aria-label="Add ${escapeAttr(ev.title || "show")} to your calendar">📅 Add to calendar</button>`;
+    }
+
+    // One delegated listener; #schedule-list persists across season swaps.
+    const scheduleListEl = $("#schedule-list");
+    if (scheduleListEl) {
+        scheduleListEl.addEventListener("click", e => {
+            const btn = e.target.closest(".event-calendar-btn");
+            if (!btn) return;
+            const ds = btn.dataset;
+            downloadIcs({
+                date: ds.date, dateEnd: ds.dateEnd, time: ds.time,
+                title: ds.title, subtitle: ds.subtitle, description: ds.description,
+                fm: ds.fm, season: ds.season, type: ds.type,
+            });
+        });
+    }
+
     function renderEvents(season) {
         const list = $("#schedule-list");
         const empty = $("#schedule-empty");
@@ -505,6 +641,7 @@
                     ${e.time ? `<div class="event-time">🕕 ${escapeHtml(e.time)}</div>` : ""}
                     ${e.fm ? `<span class="event-fm">📻 ${escapeHtml(e.fm)}</span>` : ""}
                     ${e.description ? `<p class="event-description">${escapeHtml(e.description)}</p>` : ""}
+                    ${calendarButton(e)}
                 </article>
             `;
         }).join("");
@@ -573,12 +710,19 @@
         const items = data.gallery.filter(g =>
             filter === "all" || String(g.year) === filter
         );
-        grid.innerHTML = items.map((g, i) => `
+        grid.innerHTML = items.map((g, i) => {
+            const webp = g.src.replace(/\.(jpe?g|png)$/i, ".webp");
+            const useWebp = webp !== g.src;
+            return `
             <button type="button" class="gallery-item reveal" data-idx="${i}" aria-label="Open photo">
-                <img src="${escapeAttr(g.src)}" alt="${escapeAttr(g.caption || 'Hillard Lights photo')}" loading="lazy">
+                <picture>
+                    ${useWebp ? `<source srcset="${escapeAttr(webp)}" type="image/webp">` : ""}
+                    <img src="${escapeAttr(g.src)}" alt="${escapeAttr(g.caption || 'Hillard Lights photo')}" loading="lazy">
+                </picture>
                 ${g.caption ? `<span class="caption">${escapeHtml(g.caption)}</span>` : ""}
             </button>
-        `).join("");
+        `;
+        }).join("");
 
         $$("#gallery-grid .gallery-item").forEach(el => {
             el.addEventListener("click", () => {
@@ -638,11 +782,19 @@
         preload(currentGalleryIndex - 1);
     }
 
+    function preferWebp(src) {
+        return src.replace(/\.(jpe?g|png)$/i, ".webp");
+    }
+
     function showCurrent() {
         const item = currentGalleryItems[currentGalleryIndex];
         if (!item) return;
-        lbImg.src   = item.src;
-        lbImg.alt   = item.caption || "";
+        const webp = preferWebp(item.src);
+        // Fall back to the original if the .webp isn't there (new photo
+        // added before running tools/convert-gallery.ps1).
+        lbImg.onerror = () => { lbImg.onerror = null; lbImg.src = item.src; };
+        lbImg.src = (webp !== item.src) ? webp : item.src;
+        lbImg.alt = item.caption || "";
         lbCap.textContent = item.caption || "";
         if (lbCounter) {
             lbCounter.textContent = `${currentGalleryIndex + 1} / ${currentGalleryItems.length}`;
@@ -663,7 +815,11 @@
 
     function preload(index) {
         const item = currentGalleryItems[clampIndex(index)];
-        if (item) { const im = new Image(); im.src = item.src; }
+        if (!item) return;
+        const im = new Image();
+        const webp = preferWebp(item.src);
+        im.onerror = () => { im.onerror = null; im.src = item.src; };
+        im.src = (webp !== item.src) ? webp : item.src;
     }
 
     function closeLightbox() {
@@ -1280,16 +1436,21 @@
             }
         }
 
-        // Season swap
-        new MutationObserver(() => {
-            const s = html.getAttribute("data-theme") || "halloween";
+        // Season swap. Early-exit when the attribute mutated but the value
+        // didn't actually change, so we don't churn the overlay's dots +
+        // year chips on unrelated re-applications of the theme attribute.
+        let lastAppliedSeason = null;
+        function applyForSeason(s) {
+            if (s === lastAppliedSeason) return;
+            lastAppliedSeason = s;
             renderSeason(s);
             updateLead(s);
+        }
+        new MutationObserver(() => {
+            applyForSeason(html.getAttribute("data-theme") || "halloween");
         }).observe(html, { attributes: true, attributeFilter: ["data-theme"] });
 
-        const initial = html.getAttribute("data-theme") || "halloween";
-        renderSeason(initial);
-        updateLead(initial);
+        applyForSeason(html.getAttribute("data-theme") || "halloween");
 
         function hexToRgb(hex) {
             const h = hex.replace("#", "");
@@ -1314,5 +1475,15 @@
         })[ch]);
     }
     function escapeAttr(str) { return escapeHtml(str); }
+
+    // --------------------------------------------------------
+    // Service worker — installable + offline gallery.
+    // No effect over file:// (registration requires http/https).
+    // --------------------------------------------------------
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("sw.js").catch(() => { /* ignore */ });
+        });
+    }
 
 })();

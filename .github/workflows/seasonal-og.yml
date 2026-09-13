@@ -1,0 +1,73 @@
+name: Rotate seasonal OG image
+
+# Static-site trick: OG scrapers don't run JS, so we can't swap the social
+# preview client-side. Instead we cron a tiny commit that flips the meta
+# tags in index.html between Halloween and Christmas at the season boundary.
+#
+# Nov 2 06:00 UTC → switch to Christmas
+# Feb 1 06:00 UTC → switch to Halloween
+# Also runnable on demand via workflow_dispatch.
+
+on:
+  schedule:
+    - cron: "0 6 2 11 *"    # Nov 2, 06:00 UTC
+    - cron: "0 6 1 2 *"     # Feb 1, 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Season to switch to"
+        required: true
+        default: "auto"
+        type: choice
+        options: [auto, halloween, christmas]
+
+permissions:
+  contents: write
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick season
+        id: pick
+        run: |
+          input="${{ inputs.season }}"
+          if [ -z "$input" ] || [ "$input" = "auto" ]; then
+            month=$(date -u +%m)
+            day=$(date -u +%d)
+            # Christmas window: Nov 2 through Jan 31.
+            if [ "$month" = "11" ] && [ "$day" -ge "02" ]; then
+              season="christmas"
+            elif [ "$month" = "12" ] || [ "$month" = "01" ]; then
+              season="christmas"
+            else
+              season="halloween"
+            fi
+          else
+            season="$input"
+          fi
+          echo "season=$season" >> "$GITHUB_OUTPUT"
+          echo "Chosen season: $season"
+
+      - name: Swap OG image references
+        run: |
+          season="${{ steps.pick.outputs.season }}"
+          if [ "$season" = "christmas" ]; then
+            sed -i 's|images/social/og-halloween.jpg|images/social/og-christmas.jpg|g' index.html
+          else
+            sed -i 's|images/social/og-christmas.jpg|images/social/og-halloween.jpg|g' index.html
+          fi
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "No change — index.html already targets the correct season."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Rotate OG image to ${{ steps.pick.outputs.season }}"
+          git push
