@@ -111,7 +111,7 @@ window.HILLARD = {
     {
       season: "halloween", type: "show",
       date: "2026-10-16", dateEnd: "2026-10-17",
-      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
@@ -125,7 +125,7 @@ window.HILLARD = {
     {
       season: "halloween", type: "show",
       date: "2026-10-23", dateEnd: "2026-10-24",
-      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
@@ -139,14 +139,14 @@ window.HILLARD = {
     {
       season: "halloween", type: "show",
       date: "2026-10-30",
-      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Halloween Eve",
       subtitle: "Fri"
     },
     {
       season: "halloween", type: "special",
       date: "2026-10-31",
-      time: "6:30 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:30 PM – 9:00 PM", fm: "105.3 FM",
       title: "Halloween Night 🎃",
       subtitle: "Sat",
       description: "The big one. Candy, extra songs, and a full run of the show."
@@ -178,7 +178,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-04", dateEnd: "2026-12-05",
-      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
@@ -192,7 +192,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-11", dateEnd: "2026-12-12",
-      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
@@ -206,7 +206,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-18", dateEnd: "2026-12-19",
-      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Weekend",
       subtitle: "Fri – Sat"
     },
@@ -228,7 +228,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "special",
       date: "2026-12-25",
-      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Christmas Night 🎄",
       subtitle: "Fri",
       description: "The main event. Come see the show for the holidays."
@@ -236,7 +236,7 @@ window.HILLARD = {
     {
       season: "christmas", type: "show",
       date: "2026-12-26",
-      time: "6:00 PM – 10:00 PM", fm: "105.3 FM",
+      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
       title: "Boxing Day",
       subtitle: "Sat"
     },
