@@ -323,13 +323,26 @@ window.HILLARD_ZONES = {
         // flip through past years. No year is marked `current`, so the
         // dot overlay stays hidden for every Christmas year — Christmas
         // is a static gallery, not an interactive prop map.
+        //
+        // 2026 renders a "taking the year off" placeholder (no photo).
+        // The layout that was prepared for 2026 is parked on the 2027
+        // chip as next year's plan.
         years: [
             { year: 2021, image: "images/layouts/history/christmas-2021.jpg" },
             { year: 2022, image: "images/layouts/history/christmas-2022.jpg" },
             { year: 2023, image: "images/layouts/history/christmas-2023.jpg" },
             { year: 2024, image: "images/layouts/history/christmas-2024.jpg" },
             { year: 2025, image: "images/layouts/history/christmas-2025.jpg" },
-            { year: 2026, image: "images/layouts/history/christmas-2026.jpg" }
+            {
+                year: 2026,
+                image: "images/layouts/history/christmas-2026.svg",
+                leadText: "No show this year — a few lights up as a static display."
+            },
+            {
+                year: 2027,
+                image: "images/layouts/history/christmas-2026.jpg",
+                leadText: "Planned layout for Christmas 2027. Subject to change."
+            }
         ],
 
         padX: 3,

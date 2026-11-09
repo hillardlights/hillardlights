@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3135 1280" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#1b1830"/>
+      <stop offset="55%" stop-color="#0d0a1a"/>
+      <stop offset="100%" stop-color="#08060f"/>
+    </radialGradient>
+    <radialGradient id="glow-red" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff2f4a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff2f4a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-pine" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1f8a4a" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#1f8a4a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-gold" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffd166" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffd166" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="3135" height="1280" fill="url(#bg)"/>
+
+  <!-- Soft colored glows -->
+  <circle cx="620" cy="320" r="700" fill="url(#glow-red)"/>
+  <circle cx="2500" cy="260" r="800" fill="url(#glow-pine)"/>
+  <circle cx="1560" cy="1100" r="700" fill="url(#glow-gold)"/>
+
+  <!-- Scattered snowflake dots (static, no animation — legacy image look) -->
+  <g fill="#f5efe8" opacity="0.65">
+    <circle cx="180"  cy="180"  r="4"/>
+    <circle cx="340"  cy="90"   r="3"/>
+    <circle cx="510"  cy="220"  r="5"/>
+    <circle cx="760"  cy="110"  r="3"/>
+    <circle cx="930"  cy="260"  r="4"/>
+    <circle cx="1180" cy="80"   r="3"/>
+    <circle cx="1420" cy="200"  r="5"/>
+    <circle cx="1720" cy="130"  r="3"/>
+    <circle cx="1980" cy="240"  r="4"/>
+    <circle cx="2260" cy="100"  r="3"/>
+    <circle cx="2510" cy="210"  r="5"/>
+    <circle cx="2770" cy="140"  r="4"/>
+    <circle cx="2960" cy="230"  r="3"/>
+
+    <circle cx="120"  cy="980"  r="3"/>
+    <circle cx="400"  cy="1080" r="5"/>
+    <circle cx="690"  cy="1020" r="4"/>
+    <circle cx="990"  cy="1140" r="3"/>
+    <circle cx="1280" cy="980"  r="4"/>
+    <circle cx="1620" cy="1100" r="5"/>
+    <circle cx="1940" cy="1020" r="3"/>
+    <circle cx="2240" cy="1160" r="4"/>
+    <circle cx="2540" cy="1040" r="3"/>
+    <circle cx="2820" cy="1120" r="5"/>
+    <circle cx="3020" cy="990"  r="3"/>
+  </g>
+
+  <!-- Dim six-point snowflake decorations -->
+  <g stroke="#f5efe8" stroke-width="4" stroke-linecap="round" opacity="0.35" fill="none">
+    <g transform="translate(260 540)">
+      <line x1="-70" y1="0"   x2="70" y2="0"/>
+      <line x1="-35" y1="-60" x2="35" y2="60"/>
+      <line x1="-35" y1="60"  x2="35" y2="-60"/>
+    </g>
+    <g transform="translate(2880 740)">
+      <line x1="-60" y1="0"   x2="60" y2="0"/>
+      <line x1="-30" y1="-52" x2="30" y2="52"/>
+      <line x1="-30" y1="52"  x2="30" y2="-52"/>
+    </g>
+    <g transform="translate(390 1050) scale(0.75)">
+      <line x1="-60" y1="0"   x2="60" y2="0"/>
+      <line x1="-30" y1="-52" x2="30" y2="52"/>
+      <line x1="-30" y1="52"  x2="30" y2="-52"/>
+    </g>
+    <g transform="translate(2700 450) scale(0.65)">
+      <line x1="-60" y1="0"   x2="60" y2="0"/>
+      <line x1="-30" y1="-52" x2="30" y2="52"/>
+      <line x1="-30" y1="52"  x2="30" y2="-52"/>
+    </g>
+  </g>
+
+  <!-- A quiet little string of lights across the top -->
+  <g>
+    <path d="M 60 180 Q 400 260 780 180 T 1500 180 T 2220 180 T 2940 180"
+          stroke="#2a2540" stroke-width="3" fill="none" opacity="0.55"/>
+    <g>
+      <circle cx="180"  cy="212" r="10" fill="#ff2f4a" opacity="0.85"/>
+      <circle cx="420"  cy="224" r="10" fill="#1f8a4a" opacity="0.85"/>
+      <circle cx="660"  cy="210" r="10" fill="#ffd166" opacity="0.85"/>
+      <circle cx="900"  cy="192" r="10" fill="#ff2f4a" opacity="0.85"/>
+      <circle cx="1140" cy="208" r="10" fill="#1f8a4a" opacity="0.85"/>
+      <circle cx="1380" cy="222" r="10" fill="#ffd166" opacity="0.85"/>
+      <circle cx="1620" cy="208" r="10" fill="#ff2f4a" opacity="0.85"/>
+      <circle cx="1860" cy="192" r="10" fill="#1f8a4a" opacity="0.85"/>
+      <circle cx="2100" cy="208" r="10" fill="#ffd166" opacity="0.85"/>
+      <circle cx="2340" cy="222" r="10" fill="#ff2f4a" opacity="0.85"/>
+      <circle cx="2580" cy="208" r="10" fill="#1f8a4a" opacity="0.85"/>
+      <circle cx="2820" cy="192" r="10" fill="#ffd166" opacity="0.85"/>
+    </g>
+  </g>
+
+  <!-- Centered message -->
+  <g font-family="'Mountains of Christmas', 'Bebas Neue', Georgia, serif" text-anchor="middle" fill="#f5efe8">
+    <text x="1567" y="520" font-size="120" letter-spacing="24" opacity="0.75" font-family="'Bebas Neue', Impact, sans-serif">CHRISTMAS 2026</text>
+    <text x="1567" y="720" font-size="220" font-weight="700" fill="#ffd166">Taking the year off</text>
+  </g>
+
+  <g font-family="'Inter', system-ui, sans-serif" text-anchor="middle" fill="#a29fb8">
+    <text x="1567" y="860" font-size="68">A few lights will be up as a static display &#8212; no synced show, no FM.</text>
+    <text x="1567" y="960" font-size="56" opacity="0.85">Thanks for every kind night. See you for Christmas 2027.</text>
+  </g>
+
+  <!-- Little heart glyph as a sign-off -->
+  <g transform="translate(1567 1080)">
+    <path d="M 0 36 C -40 -4 -88 -4 -88 -40 C -88 -72 -56 -84 -32 -68 C -16 -58 -8 -42 0 -28 C 8 -42 16 -58 32 -68 C 56 -84 88 -72 88 -40 C 88 -4 40 -4 0 36 Z"
+          fill="#ff2f4a" opacity="0.9"/>
+  </g>
+</svg>

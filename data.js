@@ -53,7 +53,7 @@ window.HILLARD = {
     active: true,
     text: {
       halloween: "🎃 Halloween 2026 opening night is Sunday, October 11.",
-      christmas: "🎄 Christmas 2026 opening night is Tuesday, December 1."
+      christmas: "🎄 No Christmas show this year — the Hillards are taking 2026 off. A few lights will still be up as a static display, but no synced show and no FM broadcast. Thanks for a wonderful run; see you in 2027."
     }
   },
 
@@ -61,14 +61,14 @@ window.HILLARD = {
   // Format: "YYYY-MM-DDTHH:mm" in your local time.
   countdown: {
     halloween: { label: "Halloween Opening Night", target: "2026-10-11T18:30" },
-    christmas: { label: "Christmas Opening Night", target: "2026-12-01T18:00" }
+    christmas: { label: "", target: "" }
   },
 
   // Short "About the show" paragraphs shown in the About section.
   about: [
     "Hillard Lights is a residential Halloween and Christmas light show synced to music, right in the neighborhood.",
     "Tune your car radio to the posted FM station, park nearby, and enjoy the show. Everything runs on a schedule — see below for show times.",
-    "Two seasons, one house. Spooky animations in October. Full holiday cheer in December."
+    "Two seasons, one house. Spooky animations in October. Christmas cheer in December."
   ],
 
   // ============================================================
@@ -153,100 +153,15 @@ window.HILLARD = {
     },
 
     // ---- CHRISTMAS 2026 ----
+    // No animated show this year. The Hillards are taking the season
+    // off — a few lights will still be up as a static display, but no
+    // music-synced show and no FM broadcast. We'll be back for 2027.
     {
       season: "christmas", type: "closed",
-      date: "2026-11-26", dateEnd: "2026-11-30",
-      title: "Christmas Setup",
-      subtitle: "5 nights of swap-over",
-      description: "Full display swap from Halloween to Christmas. 5 days of build-out — first show ready Dec 1."
-    },
-    {
-      season: "christmas", type: "special",
-      date: "2026-12-01",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Christmas Opening Night 🎄",
-      subtitle: "Tue",
-      description: "First night of the Christmas show. Fresh songs and a full display walkthrough."
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-02", dateEnd: "2026-12-03",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weeknights",
-      subtitle: "Wed – Thu"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-04", dateEnd: "2026-12-05",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weekend",
-      subtitle: "Fri – Sat"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-06", dateEnd: "2026-12-10",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weeknights",
-      subtitle: "Sun – Thu"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-11", dateEnd: "2026-12-12",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weekend",
-      subtitle: "Fri – Sat"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-13", dateEnd: "2026-12-17",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weeknights",
-      subtitle: "Sun – Thu"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-18", dateEnd: "2026-12-19",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weekend",
-      subtitle: "Fri – Sat"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-20", dateEnd: "2026-12-23",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weeknights",
-      subtitle: "Sun – Wed"
-    },
-    {
-      season: "christmas", type: "special",
-      date: "2026-12-24",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Christmas Eve 🎄",
-      subtitle: "Thu",
-      description: "One of the biggest nights of the season. Full show through the evening."
-    },
-    {
-      season: "christmas", type: "special",
-      date: "2026-12-25",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Christmas Night 🎄",
-      subtitle: "Fri",
-      description: "The main event. Come see the show for the holidays."
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-26",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Boxing Day",
-      subtitle: "Sat"
-    },
-    {
-      season: "christmas", type: "show",
-      date: "2026-12-27", dateEnd: "2026-12-31",
-      time: "6:00 PM – 9:00 PM", fm: "105.3 FM",
-      title: "Weeknights",
-      subtitle: "Sun – Thu",
-      description: "Final week of the 2026 Christmas season."
+      date: "2026-12-01", dateEnd: "2026-12-31",
+      title: "No Christmas show this year 🤍",
+      subtitle: "Taking 2026 off",
+      description: "No synced show, no songs, no FM this December. A few lights will still be up around the house as a static display — feel free to drive by and enjoy them. Thanks for making every past season so special; we'll be back for Christmas 2027."
     }
   ],
 

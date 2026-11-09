@@ -1139,7 +1139,12 @@
         function pickCurrentYear(season) {
             const cfg = zonesData[season];
             if (!cfg || !Array.isArray(cfg.years) || !cfg.years.length) return null;
-            return cfg.years.find(y => y.current) || cfg.years[cfg.years.length - 1];
+            const marked = cfg.years.find(y => y.current);
+            if (marked) return marked;
+            const nowYear = new Date().getFullYear();
+            const match = cfg.years.find(y => y.year === nowYear);
+            if (match) return match;
+            return cfg.years[cfg.years.length - 1];
         }
 
         function renderYearChips(season) {
@@ -1417,6 +1422,10 @@
         function updateLead(season) {
             const d = layout[season];
             if (!lead || !d) return;
+            if (currentYear && currentYear.leadText) {
+                lead.textContent = currentYear.leadText;
+                return;
+            }
             if (currentYear && !currentYear.current) {
                 const cfg = zonesData[season];
                 const hasCurrentYear = cfg && Array.isArray(cfg.years) &&
