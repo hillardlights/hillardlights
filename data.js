@@ -207,6 +207,18 @@ window.HILLARD = {
   // and/or season ("halloween"/"christmas") for filtering.
   // ============================================================
   gallery: [
+    { src: "images/gallery/8250185E-7230-4690-8F9E-0F2BC1375DBB.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/5B7F74C3-5D74-4DE4-B9AA-3BB2C5EE6918.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_8057.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0385.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0384.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0383.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0382.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0381.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0380.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0379.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0332.jpg", year: 2026, caption: "" },
+    { src: "images/gallery/IMG_0315.jpg", year: 2026, caption: "" },
     { src: "images/gallery/vlcsnap-2026-07-11-20h21m24s957.jpg", year: 2025, caption: "" },
     { src: "images/gallery/IMG_0186(2).jpg", year: 2025, caption: "" },
     { src: "images/gallery/IMG_0184(2).jpg", year: 2025, caption: "" },
